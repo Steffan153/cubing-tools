@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="visualcube.js"></script>
+    <style>
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+
+      html {
+        color-scheme: dark;
+      }
+
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+          Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue',
+          sans-serif;
+      }
+
+      .plls {
+        border-collapse: collapse;
+        margin: auto;
+      }
+
+      .plls td {
+        border: 3px solid rgb(78, 78, 78);
+        padding: 10px;
+      }
+      
+      .yellow {
+        background: #fefe00;
+      }
+
+      .blue {
+        background: #0000f2;
+      }
+
+      .red {
+        background: #ee0000;
+      }
+
+      .orange {
+        background: #ffa100;
+      }
+
+      .green {
+        background: #00d800;
+      }
+
+      .gray {
+        background: #aaa;
+      }
+
+      .cube-container {
+        --size: 60px;
+        --w: calc(var(--size) * 3);
+        --half: calc(var(--w) / 2);
+        perspective: 900px;
+        height: var(--w);
+        width: var(--w);
+        margin: 100px auto;
+      }
+
+      .small-cube {
+        --size: 20px;
+        margin: 15px;
+        height: calc(var(--w) / 3);
+      }
+
+      .cube {
+        position: relative;
+        height: 100%;
+        width: var(--w);
+        transform: rotateX(-30deg) rotateY(-45deg);
+        transform-style: preserve-3d;
+      }
+
+      .small-cube .cube {
+        transform: rotateX(-24deg) rotateY(-45deg);
+      }
+
+      .front {
+        transform: translateZ(var(--half));
+      }
+
+      .top {
+        transform: translateY(calc(-1 * var(--half))) rotateX(90deg);
+      }
+
+      .right {
+        transform: translateX(var(--half)) rotateY(90deg);
+      }
+
+      .face {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: inline-grid;
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+
+      .face div {
+        width: var(--size);
+        height: var(--size);
+        border: 2px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="trainer">
+        <div class="cube-container">
+          <div class="cube">
+            <div class="face top">
+              <div class="yellow"></div>
+              <div class="yellow"></div>
+              <div class="yellow"></div>
+              <div class="yellow"></div>
+              <div class="yellow"></div>
+              <div class="yellow"></div>
+              <div class="yellow"></div>
+              <div class="yellow"></div>
+              <div class="yellow"></div>
+            </div>
+            <div class="face front">
+              <div class="gray"></div>
+              <div class="gray"></div>
+              <div class="gray"></div>
+              <div class="gray"></div>
+              <div class="gray"></div>
+              <div class="gray"></div>
+              <div class="gray"></div>
+              <div class="gray"></div>
+              <div class="gray"></div>
+            </div>
+            <div class="face right">
+              <div class="gray"></div>
+              <div class="gray"></div>
+              <div class="gray"></div>
+              <div class="gray"></div>
+              <div class="gray"></div>
+              <div class="gray"></div>
+              <div class="gray"></div>
+              <div class="gray"></div>
+              <div class="gray"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="list">
+        <table class="plls">
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  
+    <script src="pll.js"></script>
+  </body>
+</html>
