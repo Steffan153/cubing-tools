@@ -9,7 +9,8 @@
         box-sizing: border-box;
       }
       body {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans',
+          'Helvetica Neue', sans-serif;
         margin: 0;
       }
 
@@ -113,14 +114,10 @@
     <div class="container">
       <h1>4x4 Blindfolded Helper</h1>
       <p>Helper for solving a 4x4 cube blindfolded.</p>
-      <br>
+      <br />
       <div>
         Scramble:<br />
-        <input
-          type="text"
-          class="input scramble"
-          value=""
-        />
+        <input type="text" class="input scramble" value="" />
       </div>
       <br />
       <button class="btn settings">Settings</button>
@@ -157,17 +154,17 @@
         </div>
 
         <h2>Center memorization:</h2>
-        <input type="text" style="width: 400px" class="input check-center">
+        <input type="text" style="width: 400px" class="input check-center" />
         <div style="margin-top: 8px"><button class="btn btn-check-center">Check</button></div>
         <p class="center-feedback"></p>
-  
+
         <h2>Wing memorization:</h2>
-        <input type="text" style="width: 400px" class="input check-wing">
+        <input type="text" style="width: 400px" class="input check-wing" />
         <div style="margin-top: 8px"><button class="btn btn-check-wing">Check</button></div>
         <p class="wing-feedback"></p>
-  
+
         <h2>Corner memorization:</h2>
-        <input type="text" style="width: 400px" class="input check-corner">
+        <input type="text" style="width: 400px" class="input check-corner" />
         <div style="margin-top: 8px"><button class="btn btn-check-corner">Check</button></div>
         <p class="corner-feedback"></p>
       </div>
@@ -190,20 +187,26 @@
         <h2 style="margin-top: 0">Settings</h2>
 
         <p>Default settings are for U2/r2/OP.</p>
-        <p>Swapping letters on the second letter of a pair is just for U2/r2.<br>You can also swap them during execution instead of memorization (leave those settings blank in that case)</p>
+        <p>
+          Swapping letters on the second letter of a pair is just for U2/r2.<br />You can also swap them during execution instead of
+          memorization (leave those settings blank in that case)
+        </p>
 
         <h3>Centers</h3>
         <p>Lettering scheme: <input type="text" class="input center-scheme" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
+        <p>Order to look for new cycles: <input type="text" class="input center-cycles" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
         <p>Buffer: <input type="text" class="input center-buffer" value="A" /></p>
-        <p>Letters to swap on the second letter of a pair: <input type="text" class="input center-swaps" value="BD"></p>
+        <p>Letters to swap on the second letter of a pair: <input type="text" class="input center-swaps" value="BD" /></p>
 
         <h3>Wings</h3>
         <p>Lettering scheme: <input type="text" class="input wing-scheme" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
+        <p>Order to look for new cycles: <input type="text" class="input wing-cycles" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
         <p>Buffer: <input type="text" class="input wing-buffer" value="U" /></p>
-        <p>Letters to swap on the second letter of a pair: <input type="text" class="input wing-swaps" value="IS,CW"></p>
+        <p>Letters to swap on the second letter of a pair: <input type="text" class="input wing-swaps" value="IS" /></p>
 
         <h3>Corners</h3>
         <p>Lettering scheme: <input type="text" class="input corner-scheme" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
+        <p>Order to look for new cycles: <input type="text" class="input corner-cycles" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
         <p>Buffer: <input type="text" class="input corner-buffer" value="E" /></p>
 
         <button class="btn">Close</button>
@@ -217,23 +220,28 @@
 
         const options = JSON.parse(localStorage.getItem('4bld-options') || 'null') || {
           centerScheme: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+          centerCycles: 'ABCDEFGHIJKLMNOPQRSTUVWX',
           centerBuffer: 'A',
           centerSwaps: 'BD',
           wingScheme: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+          wingCycles: 'ABCDEFGHIJKLMNOPQRSTUVWX',
           wingBuffer: 'U',
-          wingSwaps: 'IS,CW',
+          wingSwaps: 'IS',
           cornerScheme: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+          cornerCycles: 'ABCDEFGHIJKLMNOPQRSTUVWX',
           cornerBuffer: 'E',
-          
         };
 
         $('.center-scheme').value = options.centerScheme;
+        $('.center-cycles').value = options.centerCycles;
         $('.center-buffer').value = options.centerBuffer;
         $('.center-swaps').value = options.centerSwaps;
         $('.wing-scheme').value = options.wingScheme;
+        $('.wing-cycles').value = options.wingCycles;
         $('.wing-buffer').value = options.wingBuffer;
         $('.wing-swaps').value = options.wingSwaps;
         $('.corner-scheme').value = options.cornerScheme;
+        $('.corner-cycles').value = options.cornerCycles;
         $('.corner-buffer').value = options.cornerBuffer;
 
         const orientations = ['', 'z', "z'", 'z2', 'x', "x'"].flatMap((x) => ['', 'y', "y'", 'y2'].map((y) => (x + ' ' + y).trim()));
@@ -243,7 +251,9 @@
 
         const wingOpposites = [...`QMIEDLXRCPUFBTVJAHWNKOSG`].map((x) => x.charCodeAt() - 65);
 
-        const cornerOpposites = 'ER QN MJ IF RA DI LU XS FD CM PV UG JC BQ TW VK NB AE HX WO GL KP OT SH'.split` `.map(x => [...x].map(x => x.charCodeAt() - 65));
+        const cornerOpposites = 'ER QN MJ IF RA DI LU XS FD CM PV UG JC BQ TW VK NB AE HX WO GL KP OT SH'.split` `.map((x) =>
+          [...x].map((x) => x.charCodeAt() - 65)
+        );
 
         const chunk = (a, b) => (a.length <= b ? [a] : [a.slice(0, b), ...chunk(a.slice(b), b)]);
 
@@ -256,7 +266,16 @@
             alert('Invalid center buffer, please enter a letter in your center lettering scheme.');
             return false;
           }
-          if (!(/^([A-Z][A-Z](,[A-Z][A-Z])*)?$/.test(options.centerSwaps) && [...options.centerSwaps].every(x => [',', ...options.centerScheme].includes(x)))) {
+          if (!(/^[A-Z]{23,24}/.test(options.centerCycles) && [...options.centerScheme].every(x => x === options.centerBuffer || options.centerCycles.includes(x)))) {
+            alert('Invalid order to look for new cycles (centers), please use the letters in your lettering scheme.');
+            return false;
+          }
+          if (
+            !(
+              /^([A-Z][A-Z](,[A-Z][A-Z])*)?$/.test(options.centerSwaps) &&
+              [...options.centerSwaps].every((x) => [',', ...options.centerScheme].includes(x))
+            )
+          ) {
             alert('Invalid list of letters to swap on the second letter of a pair (centers).');
             return false;
           }
@@ -268,7 +287,16 @@
             alert('Invalid wing buffer, please enter a letter in your wing lettering scheme.');
             return false;
           }
-          if (!(/^([A-Z][A-Z](,[A-Z][A-Z])*)?$/.test(options.wingSwaps) && [...options.wingSwaps].every(x => [',', ...options.wingScheme].includes(x)))) {
+          if (!(/^[A-Z]{23,24}/.test(options.wingCycles) && [...options.wingScheme].every(x => x === options.wingBuffer || options.wingCycles.includes(x)))) {
+            alert('Invalid order to look for new cycles (wings), please use the letters in your lettering scheme.');
+            return false;
+          }
+          if (
+            !(
+              /^([A-Z][A-Z](,[A-Z][A-Z])*)?$/.test(options.wingSwaps) &&
+              [...options.wingSwaps].every((x) => [',', ...options.wingScheme].includes(x))
+            )
+          ) {
             alert('Invalid list of letters to swap on the second letter of a pair (wings).');
             return false;
           }
@@ -278,6 +306,11 @@
           }
           if (![...options.cornerScheme].includes(options.cornerBuffer)) {
             alert('Invalid corner buffer, please enter a letter in your corner lettering scheme.');
+            return false;
+          }
+          const bfs = allCornerStickers(options.cornerBuffer);
+          if (!(/^[A-Z]{21,24}/.test(options.cornerCycles) && [...options.cornerScheme].every(x => bfs.includes(x) || options.cornerCycles.includes(x)))) {
+            alert('Invalid order to look for new cycles (corners), please use the letters in your lettering scheme.');
             return false;
           }
           return true;
@@ -300,11 +333,15 @@
         }
 
         function getCornerLocation([a, b, c]) {
-          return cornerOpposites.findIndex((x, i) => (i / 4 | 0) === colors.indexOf(a) && x.map(x => x / 4 | 0).sort() + '' === [b, c].map(x => colors.indexOf(x)).sort() + '');
+          return cornerOpposites.findIndex(
+            (x, i) =>
+              ((i / 4) | 0) === colors.indexOf(a) &&
+              x.map((x) => (x / 4) | 0).sort() + '' === [b, c].map((x) => colors.indexOf(x)).sort() + ''
+          );
         }
 
         function allCornerStickers(corner) {
-          return [corner, ...cornerOpposites[options.cornerScheme.indexOf(corner)].map(x => options.cornerScheme[x])];
+          return [corner, ...cornerOpposites[options.cornerScheme.indexOf(corner)].map((x) => options.cornerScheme[x])];
         }
 
         function getCenters(faces) {
@@ -332,14 +369,11 @@
 
         function getCorners(faces) {
           const cornerStickers = faces.flatMap((x) => {
-            const [a, , , b,
-                   , , , ,
-                   , , , ,
-                   d, , , c] = x;
+            const [a, , , b, , , , , , , , , d, , , c] = x;
             return [a, b, c, d];
           });
 
-          return cornerStickers.map((x, i) => [x, ...cornerOpposites[i].map(x => cornerStickers[x])]);
+          return cornerStickers.map((x, i) => [x, ...cornerOpposites[i].map((x) => cornerStickers[x])]);
         }
 
         function getUnsolved(centers) {
@@ -350,7 +384,9 @@
           const faces = getFaces(($('.scramble').value + ' ' + $('.draw-orientation').value).trim());
 
           const [top, left, front, right, back, bottom] = faces.map((f) => {
-            return `<div class="face">${f.map((x) => `<div class="${`white red green yellow orange blue`.split(' ')[x]}"></div>`).join('')}</div>`;
+            return `<div class="face">${f
+              .map((x) => `<div class="${`white red green yellow orange blue`.split(' ')[x]}"></div>`)
+              .join('')}</div>`;
           });
           const empty = `<div></div>`;
           document.querySelector('.cube').innerHTML = `
@@ -366,7 +402,7 @@
             o[a] = b;
             o[b] = a;
           });
-          return chunks.map(x => x[1] ? x[0] + (o[x[1]] || x[1]) : x);
+          return chunks.map((x) => (x[1] ? x[0] + (o[x[1]] || x[1]) : x));
         }
 
         function generate() {
@@ -387,7 +423,7 @@
           for (let k = 99; k--; ) {
             const flat = unsolved.flat();
             if (!flat.length) break;
-            const cycleStart = flat.includes(options.centerBuffer) ? options.centerBuffer : flat[0];
+            const cycleStart = [options.centerBuffer, ...options.centerCycles].find(x => flat.includes(x));
 
             const arr = unsolved[(options.centerScheme.indexOf(cycleStart) / 4) | 0];
             arr.splice(arr.indexOf(cycleStart), 1);
@@ -402,7 +438,10 @@
             }
           }
 
-          $('.center-memo').innerText = swaps(chunk(centerMemo.replace(new RegExp(options.centerBuffer, 'g'), ''), 2), options.centerSwaps).join(' ');
+          $('.center-memo').innerText = swaps(
+            chunk(centerMemo.replace(new RegExp(options.centerBuffer, 'g'), ''), 2),
+            options.centerSwaps
+          ).join(' ');
 
           const wings = getWings(faces);
 
@@ -411,7 +450,7 @@
 
           for (let k = 99; k--; ) {
             if (!unsolvedWings.length) break;
-            const cycleStart = unsolvedWings.includes(options.wingBuffer) ? options.wingBuffer : unsolvedWings[0];
+            const cycleStart = [options.wingBuffer, ...options.wingCycles].find(x => unsolvedWings.includes(x));
 
             let piece = cycleStart;
             wingMemo += piece;
@@ -428,7 +467,9 @@
             }
           }
 
-          $('.wing-memo').innerText = swaps(chunk(wingMemo.replace(new RegExp(options.wingBuffer, 'g'), ''), 2), options.wingSwaps).join(' ');
+          $('.wing-memo').innerText = swaps(chunk(wingMemo.replace(new RegExp(options.wingBuffer, 'g'), ''), 2), options.wingSwaps).join(
+            ' '
+          );
 
           const corners = getCorners(faces);
 
@@ -437,7 +478,7 @@
 
           for (let k = 99; k--; ) {
             if (!unsolvedCorners.length) break;
-            const cycleStart = unsolvedCorners.includes(options.cornerBuffer) ? options.cornerBuffer : unsolvedCorners[0];
+            const cycleStart = [options.cornerBuffer, ...options.cornerCycles].find(x => unsolvedCorners.includes(x));
             const cycleStartStickers = allCornerStickers(cycleStart);
 
             let piece = cycleStart;
@@ -445,7 +486,7 @@
 
             for (let j = 99; j--; ) {
               piece = options.cornerScheme[getCornerLocation(corners[options.cornerScheme.indexOf(piece)])];
-              allCornerStickers(piece).forEach(x => {
+              allCornerStickers(piece).forEach((x) => {
                 const idx = unsolvedCorners.indexOf(x);
                 if (idx < 0) {
                   throw new Error("Unsolved corner solved (looks like there's a bug)");
@@ -465,7 +506,7 @@
           const memo = $('.check-center').value.toUpperCase().replace(/ |,/g, '');
           $('.center-feedback').innerText = '';
 
-          if ([...memo].some(x => ![...options.centerScheme].includes(x))) {
+          if ([...memo].some((x) => ![...options.centerScheme].includes(x))) {
             $('.center-feedback').innerText = '❌ Invalid, please only use letters in your center lettering scheme.';
             return;
           }
@@ -490,7 +531,7 @@
             [centers[buf], centers[i]] = [centers[i], centers[buf]];
           }
 
-          const u = centers.flatMap((x, i) => colors[i / 4 | 0] === x ? [] : [options.centerScheme[i]]);
+          const u = centers.flatMap((x, i) => (colors[(i / 4) | 0] === x ? [] : [options.centerScheme[i]]));
           if (!u.length) {
             $('.center-feedback').innerText = `✅ Looks good!`;
           } else {
@@ -502,7 +543,7 @@
           const memo = $('.check-wing').value.toUpperCase().replace(/ |,/g, '');
           $('.wing-feedback').innerText = '';
 
-          if ([...memo].some(x => ![...options.wingScheme].includes(x))) {
+          if ([...memo].some((x) => ![...options.wingScheme].includes(x))) {
             $('.wing-feedback').innerText = '❌ Invalid, please only use letters in your wing lettering scheme.';
             return;
           }
@@ -527,7 +568,7 @@
             [wings[buf], wings[i]] = [wings[i], wings[buf]];
           }
 
-          const u = wings.flatMap((x, i) => getWingLocation(x) === i ? [] : [options.wingScheme[i]]);
+          const u = wings.flatMap((x, i) => (getWingLocation(x) === i ? [] : [options.wingScheme[i]]));
           if (!u.length) {
             $('.wing-feedback').innerText = `✅ Looks good!`;
           } else {
@@ -539,14 +580,14 @@
           const memo = $('.check-corner').value.toUpperCase().replace(/ |,/g, '');
           $('.corner-feedback').innerText = '';
 
-          if ([...memo].some(x => ![...options.cornerScheme].includes(x))) {
+          if ([...memo].some((x) => ![...options.cornerScheme].includes(x))) {
             $('.corner-feedback').innerText = '❌ Invalid, please only use letters in your corner lettering scheme.';
             return;
           }
 
           const bufs = allCornerStickers(options.cornerBuffer);
 
-          const kb = [...memo].find(x => bufs.includes(x));
+          const kb = [...memo].find((x) => bufs.includes(x));
 
           if (kb) {
             $('.corner-feedback').innerText = `❌ ${kb} is your buffer, so it shouldn't be used in your memorization.`;
@@ -639,6 +680,11 @@
           localStorage.setItem('4bld-options', JSON.stringify(options));
         });
 
+        $('.center-cycles').addEventListener('input', () => {
+          options.centerCycles = $('.center-cycles').value;
+          localStorage.setItem('4bld-options', JSON.stringify(options));
+        });
+
         $('.center-swaps').addEventListener('input', () => {
           options.centerSwaps = $('.center-swaps').value;
           localStorage.setItem('4bld-options', JSON.stringify(options));
@@ -654,6 +700,11 @@
           localStorage.setItem('4bld-options', JSON.stringify(options));
         });
 
+        $('.wing-cycles').addEventListener('input', () => {
+          options.wingCycles = $('.wing-cycles').value;
+          localStorage.setItem('4bld-options', JSON.stringify(options));
+        });
+
         $('.wing-swaps').addEventListener('input', () => {
           options.wingSwaps = $('.wing-swaps').value;
           localStorage.setItem('4bld-options', JSON.stringify(options));
@@ -666,6 +717,11 @@
 
         $('.corner-buffer').addEventListener('input', () => {
           options.cornerBuffer = $('.corner-buffer').value;
+          localStorage.setItem('4bld-options', JSON.stringify(options));
+        });
+
+        $('.corner-cycles').addEventListener('input', () => {
+          options.cornerCycles = $('.corner-cycles').value;
           localStorage.setItem('4bld-options', JSON.stringify(options));
         });
       })();
