@@ -613,10 +613,12 @@
             });
           }
 
-          if (corners.every((x, i) => getCornerLocation(x) === i)) {
+          const u = corners.flatMap((x, i) => (getCornerLocation(x) === i ? [] : [options.cornerScheme[i]]));
+
+          if (!u.length) {
             $('.corner-feedback').innerText = `✅ Looks good!`;
           } else {
-            $('.corner-feedback').innerText = `❌ Looks like there's an error.`;
+            $('.corner-feedback').innerText = `❌ Looks like there's an error. Unsolved corner stickers after executing: ${u.join(', ')}`;
           }
         }
 

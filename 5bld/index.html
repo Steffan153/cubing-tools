@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>5x5 Blindfolded Helper</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans',
+          'Helvetica Neue', sans-serif;
+        margin: 0;
+      }
+
+      .face {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        border: 1px solid black;
+      }
+
+      .face > div {
+        width: 35px;
+        height: 35px;
+        border: 1px solid black;
+      }
+
+      .yellow {
+        background: #fefe00;
+      }
+
+      .blue {
+        background: #0000f2;
+      }
+
+      .red {
+        background: #ee0000;
+      }
+
+      .orange {
+        background: #ffa100;
+      }
+
+      .green {
+        background: #00d800;
+      }
+
+      .cube {
+        display: inline-grid;
+        gap: 10px;
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      dialog::backdrop {
+        background: #000a;
+      }
+
+      .btn {
+        background-color: #4343ff;
+        color: white;
+        padding: 9px 20px;
+        font-family: inherit;
+        font-size: 1.2rem;
+        border: none;
+        outline: none;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+
+      .btn:hover {
+        background-color: #1d1dbe;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
+      }
+
+      .input {
+        padding: 6px 10px;
+        border: 1px solid #ccc;
+        outline: none;
+        border-radius: 10px;
+        font: inherit;
+        transition: box-shadow 0.2s;
+      }
+
+      .input:focus {
+        box-shadow: 0 0 3px #0006;
+      }
+
+      .scramble {
+        width: 100%;
+        margin-top: 5px;
+      }
+
+      .generated,
+      .check {
+        margin-top: 20px;
+        margin-bottom: 50px;
+      }
+
+      .memo {
+        font-family: monospace;
+        background: #eee;
+        padding: 10px;
+        font-size: 1.1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>5x5 Blindfolded Helper</h1>
+      <p>Helper for solving a 5x5 cube blindfolded.</p>
+      <br />
+      <div>
+        Scramble:<br />
+        <input type="text" class="input scramble" value="" />
+      </div>
+      <br />
+      <button class="btn settings">Settings</button>
+      <br />
+      <br />
+      <button class="btn draw-scramble">Draw scramble</button>
+      <br />
+      <br />
+
+      <button class="btn generate-memo">Generate memorization</button>
+      &nbsp;
+      <button class="btn check-memo">Check my memorization</button>
+
+      <div class="generated" style="display: none">
+        <h2>X-center memorization:</h2>
+        <p class="memo x-center-memo"></p>
+
+        <h2>+-center memorization:</h2>
+        <p class="memo plus-center-memo"></p>
+
+        <h2>Wing memorization:</h2>
+        <p class="memo wing-memo"></p>
+
+        <h2>Midge memorization:</h2>
+        <p class="memo midge-memo"></p>
+
+        <h2>Corner memorization:</h2>
+        <p class="memo corner-memo"></p>
+      </div>
+
+      <div class="check" style="display: none">
+        <h2>X-center memorization:</h2>
+        <input type="text" style="width: 400px" class="input check-x-center" />
+        <div style="margin-top: 8px"><button class="btn btn-check-x-center">Check</button></div>
+        <p class="x-center-feedback"></p>
+
+        <h2>+-center memorization:</h2>
+        <input type="text" style="width: 400px" class="input check-plus-center" />
+        <div style="margin-top: 8px"><button class="btn btn-check-plus-center">Check</button></div>
+        <p class="plus-center-feedback"></p>
+
+        <h2>Wing memorization:</h2>
+        <input type="text" style="width: 400px" class="input check-wing" />
+        <div style="margin-top: 8px"><button class="btn btn-check-wing">Check</button></div>
+        <p class="wing-feedback"></p>
+
+        <h2>Midge memorization:</h2>
+        <input type="text" style="width: 400px" class="input check-midge" />
+        <div style="margin-top: 8px"><button class="btn btn-check-midge">Check</button></div>
+        <p class="midge-feedback"></p>
+
+        <h2>Corner memorization:</h2>
+        <input type="text" style="width: 400px" class="input check-corner" />
+        <div style="margin-top: 8px"><button class="btn btn-check-corner">Check</button></div>
+        <p class="corner-feedback"></p>
+      </div>
+    </div>
+    <dialog id="draw-dialog">
+      <form method="dialog">
+        <h2 style="margin-top: 0">Draw scramble</h2>
+        <p>Note: Cube is reoriented to white top, green front.</p>
+        <br />
+        <div class="cube"></div>
+        <br /><br />
+        <button class="btn">Close</button>
+      </form>
+    </dialog>
+    <dialog id="settings-dialog">
+      <form method="dialog">
+        <h2 style="margin-top: 0">Settings</h2>
+
+        <p>Default settings are for U2/U2/r2/m2/OP.</p>
+        <p>
+          Swapping letters on the second letter of a pair is just for U2/r2/m2.<br />You can also swap them during execution instead of
+          memorization (leave those settings blank in that case)
+        </p>
+
+        <h3>X-centers</h3>
+        <p>Lettering scheme: <input type="text" class="input x-center-scheme" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
+        <p>Order to look for new cycles: <input type="text" class="input x-center-cycles" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
+        <p>Buffer: <input type="text" class="input x-center-buffer" value="A" /></p>
+        <p>Letters to swap on the second letter of a pair: <input type="text" class="input x-center-swaps" value="BD" /></p>
+
+        <h3>+-centers</h3>
+        <p>Lettering scheme: <input type="text" class="input plus-center-scheme" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
+        <p>Order to look for new cycles: <input type="text" class="input plus-center-cycles" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
+        <p>Buffer: <input type="text" class="input plus-center-buffer" value="D" /></p>
+        <p>Letters to swap on the second letter of a pair: <input type="text" class="input plus-center-swaps" value="AC" /></p>
+
+        <h3>Wings</h3>
+        <p>Lettering scheme: <input type="text" class="input wing-scheme" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
+        <p>Order to look for new cycles: <input type="text" class="input wing-cycles" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
+        <p>Buffer: <input type="text" class="input wing-buffer" value="U" /></p>
+        <p>Letters to swap on the second letter of a pair: <input type="text" class="input wing-swaps" value="IS" /></p>
+
+        <h3>Midges</h3>
+        <p>Lettering scheme: <input type="text" class="input midge-scheme" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
+        <p>Order to look for new cycles: <input type="text" class="input midge-cycles" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
+        <p>Buffer: <input type="text" class="input midge-buffer" value="U" /></p>
+        <p>Letters to swap on the second letter of a pair: <input type="text" class="input midge-swaps" value="IS,CW" /></p>
+
+        <h3>Corners</h3>
+        <p>Lettering scheme: <input type="text" class="input corner-scheme" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
+        <p>Order to look for new cycles: <input type="text" class="input corner-cycles" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
+        <p>Buffer: <input type="text" class="input corner-buffer" value="E" /></p>
+
+        <button class="btn">Close</button>
+      </form>
+    </dialog>
+    <script src="visualcube.js"></script>
+    <script>
+      (() => {
+        const $ = (x) => document.querySelector(x);
+        const $$ = (x) => document.querySelectorAll(x);
+
+        const options = JSON.parse(localStorage.getItem('5bld-options') || 'null') || {
+          xCenterScheme: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+          xCenterCycles: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+          xCenterBuffer: 'A',
+          xCenterSwaps: 'BD',
+          plusCenterScheme: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+          plusCenterCycles: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+          plusCenterBuffer: 'D',
+          plusCenterSwaps: 'AC',
+          wingScheme: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+          wingCycles: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+          wingBuffer: 'U',
+          wingSwaps: 'IS',
+          midgeScheme: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+          midgeCycles: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+          midgeBuffer: 'U',
+          midgeSwaps: 'IS,CW',
+          cornerScheme: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+          cornerCycles: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+          cornerBuffer: 'E',
+        };
+
+        $('.x-center-scheme').value = options.xCenterScheme;
+        $('.x-center-cycles').value = options.xCenterCycles;
+        $('.x-center-buffer').value = options.xCenterBuffer;
+        $('.x-center-swaps').value = options.xCenterSwaps;
+        $('.plus-center-scheme').value = options.plusCenterScheme;
+        $('.plus-center-cycles').value = options.plusCenterCycles;
+        $('.plus-center-buffer').value = options.plusCenterBuffer;
+        $('.plus-center-swaps').value = options.plusCenterSwaps;
+        $('.wing-scheme').value = options.wingScheme;
+        $('.wing-cycles').value = options.wingCycles;
+        $('.wing-buffer').value = options.wingBuffer;
+        $('.wing-swaps').value = options.wingSwaps;
+        $('.midge-scheme').value = options.midgeScheme;
+        $('.midge-cycles').value = options.midgeCycles;
+        $('.midge-buffer').value = options.midgeBuffer;
+        $('.midge-swaps').value = options.midgeSwaps;
+        $('.corner-scheme').value = options.cornerScheme;
+        $('.corner-cycles').value = options.cornerCycles;
+        $('.corner-buffer').value = options.cornerBuffer;
+
+        const [W, R, G, Y, O, B] = [0, 1, 2, 3, 4, 5];
+        const colors = [W, O, G, R, B, Y];
+
+        const orientations = {
+          [[W, G]]: "",
+          [[W, O]]: "y",
+          [[W, R]]: "y'",
+          [[W, B]]: "y2",
+          [[R, G]]: "z",
+          [[G, O]]: "z y",
+          [[B, R]]: "z y'",
+          [[O, B]]: "z y2",
+          [[O, G]]: "z'",
+          [[B, O]]: "z' y",
+          [[G, R]]: "z' y'",
+          [[R, B]]: "z' y2",
+          [[Y, G]]: "z2",
+          [[Y, O]]: "z2 y",
+          [[Y, R]]: "z2 y'",
+          [[Y, B]]: "z2 y2",
+          [[B, W]]: "x",
+          [[R, W]]: "x y",
+          [[O, W]]: "x y'",
+          [[G, W]]: "x y2",
+          [[G, Y]]: "x'",
+          [[O, Y]]: "x' y",
+          [[R, Y]]: "x' y'",
+          [[B, Y]]: "x' y2",
+        };
+
+        const wingOpposites = [...`QMIEDLXRCPUFBTVJAHWNKOSG`].map((x) => x.charCodeAt() - 65);
+
+        const cornerOpposites = 'ER QN MJ IF RA DI LU XS FD CM PV UG JC BQ TW VK NB AE HX WO GL KP OT SH'.split` `.map((x) =>
+          [...x].map((x) => x.charCodeAt() - 65)
+        );
+
+        const chunk = (a, b) => (a.length <= b ? [a] : [a.slice(0, b), ...chunk(a.slice(b), b)]);
+
+        function validateOptions() {
+          if (!(/^[A-Z]{24}/.test(options.xCenterScheme) && new Set(options.xCenterScheme).size === 24)) {
+            alert('Invalid x-center lettering scheme, please enter 24 unique uppercase letters.');
+            return false;
+          }
+          if (![...options.xCenterScheme].includes(options.xCenterBuffer)) {
+            alert('Invalid x-center buffer, please enter a letter in your x-center lettering scheme.');
+            return false;
+          }
+          if (!(/^[A-Z]{23,24}/.test(options.xCenterCycles) && [...options.xCenterScheme].every(x => x === options.xCenterBuffer || options.xCenterCycles.includes(x)))) {
+            alert('Invalid order to look for new cycles (x-centers), please use the letters in your lettering scheme.');
+            return false;
+          }
+          if (
+            !(
+              /^([A-Z][A-Z](,[A-Z][A-Z])*)?$/.test(options.xCenterSwaps) &&
+              [...options.xCenterSwaps].every((x) => [',', ...options.xCenterScheme].includes(x))
+            )
+          ) {
+            alert('Invalid list of letters to swap on the second letter of a pair (x-centers).');
+            return false;
+          }
+
+          if (!(/^[A-Z]{24}/.test(options.plusCenterScheme) && new Set(options.plusCenterScheme).size === 24)) {
+            alert('Invalid plus-center lettering scheme, please enter 24 unique uppercase letters.');
+            return false;
+          }
+          if (![...options.plusCenterScheme].includes(options.plusCenterBuffer)) {
+            alert('Invalid plus-center buffer, please enter a letter in your plus-center lettering scheme.');
+            return false;
+          }
+          if (!(/^[A-Z]{23,24}/.test(options.plusCenterCycles) && [...options.plusCenterScheme].every(x => x === options.plusCenterBuffer || options.plusCenterCycles.includes(x)))) {
+            alert('Invalid order to look for new cycles (plus-centers), please use the letters in your lettering scheme.');
+            return false;
+          }
+          if (
+            !(
+              /^([A-Z][A-Z](,[A-Z][A-Z])*)?$/.test(options.plusCenterSwaps) &&
+              [...options.plusCenterSwaps].every((x) => [',', ...options.plusCenterScheme].includes(x))
+            )
+          ) {
+            alert('Invalid list of letters to swap on the second letter of a pair (plus-centers).');
+            return false;
+          }
+
+          if (!(/^[A-Z]{24}/.test(options.wingScheme) && new Set(options.wingScheme).size === 24)) {
+            alert('Invalid wing lettering scheme, please enter 24 unique uppercase letters.');
+            return false;
+          }
+          if (![...options.wingScheme].includes(options.wingBuffer)) {
+            alert('Invalid wing buffer, please enter a letter in your wing lettering scheme.');
+            return false;
+          }
+          if (!(/^[A-Z]{23,24}/.test(options.wingCycles) && [...options.wingScheme].every(x => x === options.wingBuffer || options.wingCycles.includes(x)))) {
+            alert('Invalid order to look for new cycles (wings), please use the letters in your lettering scheme.');
+            return false;
+          }
+          if (
+            !(
+              /^([A-Z][A-Z](,[A-Z][A-Z])*)?$/.test(options.wingSwaps) &&
+              [...options.wingSwaps].every((x) => [',', ...options.wingScheme].includes(x))
+            )
+          ) {
+            alert('Invalid list of letters to swap on the second letter of a pair (wings).');
+            return false;
+          }
+
+          if (!(/^[A-Z]{24}/.test(options.midgeScheme) && new Set(options.midgeScheme).size === 24)) {
+            alert('Invalid midge lettering scheme, please enter 24 unique uppercase letters.');
+            return false;
+          }
+          if (![...options.midgeScheme].includes(options.midgeBuffer)) {
+            alert('Invalid midge buffer, please enter a letter in your midge lettering scheme.');
+            return false;
+          }
+          const mbfs = allMidgeStickers(options.midgeBuffer);
+          if (!(/^[A-Z]{22,24}/.test(options.midgeCycles) && [...options.midgeScheme].every(x => mbfs.includes(x) || options.midgeCycles.includes(x)))) {
+            alert('Invalid order to look for new cycles (midges), please use the letters in your lettering scheme.');
+            return false;
+          }
+          if (
+            !(
+              /^([A-Z][A-Z](,[A-Z][A-Z])*)?$/.test(options.midgeSwaps) &&
+              [...options.midgeSwaps].every((x) => [',', ...options.midgeScheme].includes(x))
+            )
+          ) {
+            alert('Invalid list of letters to swap on the second letter of a pair (midges).');
+            return false;
+          }
+
+          if (!(/^[A-Z]{24}/.test(options.cornerScheme) && new Set(options.cornerScheme).size === 24)) {
+            alert('Invalid corner lettering scheme, please enter 24 unique uppercase letters.');
+            return false;
+          }
+          if (![...options.cornerScheme].includes(options.cornerBuffer)) {
+            alert('Invalid corner buffer, please enter a letter in your corner lettering scheme.');
+            return false;
+          }
+          const bfs = allCornerStickers(options.cornerBuffer);
+          if (!(/^[A-Z]{21,24}/.test(options.cornerCycles) && [...options.cornerScheme].every(x => bfs.includes(x) || options.cornerCycles.includes(x)))) {
+            alert('Invalid order to look for new cycles (corners), please use the letters in your lettering scheme.');
+            return false;
+          }
+          return true;
+        }
+
+        function getFaces(scram) {
+          const f = s => {
+            const a = chunk(
+              window['sr-visualizer'].cube({
+                cubeSize: 5,
+                colorScheme: [W, R, G, Y, O, B],
+                algorithm: s,
+              }),
+              5 * 5
+            );
+            return [0, 4, 2, 1, 5, 3].map(x => a[x]);
+          };
+          let faces = f(scram);
+          const k = orientations[[0, 2].map(x => faces[x][12])];
+          if (k) {
+            faces = f(scram + ' ' + k);
+          }
+          return faces;
+        }
+
+        function getWingLocation([a, b]) {
+          return wingOpposites.find((x, i) => ((x / 4) | 0) === colors.indexOf(a) && ((i / 4) | 0) === colors.indexOf(b));
+        }
+
+        function getCornerLocation([a, b, c]) {
+          return cornerOpposites.findIndex(
+            (x, i) =>
+              ((i / 4) | 0) === colors.indexOf(a) &&
+              x.map((x) => (x / 4) | 0).sort() + '' === [b, c].map((x) => colors.indexOf(x)).sort() + ''
+          );
+        }
+
+        function allCornerStickers(corner) {
+          return [corner, ...cornerOpposites[options.cornerScheme.indexOf(corner)].map((x) => options.cornerScheme[x])];
+        }
+
+        function allMidgeStickers(midge) {
+          return [midge, options.wingScheme[wingOpposites[options.wingScheme.indexOf(midge)]]];
+        }
+
+        function getXCenters(faces) {
+          return faces.map((x) => {
+            const [ ,  ,  ,  ,  ,
+                    , a,  , b,  ,
+                    ,  ,  ,  ,  ,
+                    , d,  , c,  ,
+                    ,  ,  ,  ,  ] = x;
+            return [a, b, c, d];
+          });
+        }
+
+        function getPlusCenters(faces) {
+          return faces.map((x) => {
+            const [ ,  ,  ,  ,  ,
+                    ,  , a,  ,  ,
+                    , d,  , b,  ,
+                    ,  , c,  ,  ,
+                    ,  ,  ,  ,  ] = x;
+            return [a, b, c, d];
+          });
+        }
+
+        function getWings(faces) {
+          const wingStickers = faces.flatMap((x) => {
+            const [ , a,  , b,  ,
+                   h,  ,  ,  , c,
+                    ,  ,  ,  ,  ,
+                   g,  ,  ,  , d,
+                    , f,  , e,  ] = x;
+            return [
+              [a, b],
+              [c, d],
+              [e, f],
+              [g, h],
+            ];
+          });
+
+          return wingStickers.map((x, i) => [x[1], wingStickers[wingOpposites[i]][0]]);
+        }
+
+        function getMidges(faces) {
+          const stickers = faces.flatMap((x) => {
+            const [ ,  , a,  ,  ,
+                    ,  ,  ,  ,  ,
+                   d,  ,  ,  , b,
+                    ,  ,  ,  ,  ,
+                    ,  , c,  ,  ] = x;
+            return [a, b, c, d];
+          });
+
+          return stickers.map((x, i) => [x, stickers[wingOpposites[i]]]);
+        }
+
+        function getCorners(faces) {
+          const cornerStickers = faces.flatMap((x) => {
+            const [a,  ,  ,  , b,
+                    ,  ,  ,  ,  ,
+                    ,  ,  ,  ,  ,
+                    ,  ,  ,  ,  ,
+                   d,  ,  ,  , c] = x;
+            return [a, b, c, d];
+          });
+
+          return cornerStickers.map((x, i) => [x, ...cornerOpposites[i].map((x) => cornerStickers[x])]);
+        }
+
+        function getUnsolvedX(centers) {
+          return centers.map((x, i) => [...options.xCenterScheme.slice(i * 4, i * 4 + 4)].filter((_, j) => x[j] !== colors[i]));
+        }
+
+        function getUnsolvedPlus(centers) {
+          return centers.map((x, i) => [...options.plusCenterScheme.slice(i * 4, i * 4 + 4)].filter((_, j) => x[j] !== colors[i]));
+        }
+
+        function draw() {
+          const faces = getFaces($('.scramble').value);
+
+          const [top, left, front, right, back, bottom] = faces.map((f) => {
+            return `<div class="face">${f
+              .map((x) => `<div class="${`white red green yellow orange blue`.split(' ')[x]}"></div>`)
+              .join('')}</div>`;
+          });
+          const empty = `<div></div>`;
+          document.querySelector('.cube').innerHTML = `
+            ${empty} ${top}    ${empty} ${empty}
+            ${left}  ${front}  ${right} ${back}
+            ${empty} ${bottom} ${empty} ${empty}
+          `;
+        }
+
+        function swaps(chunks, list) {
+          const o = {};
+          list.split(',').forEach(([a, b]) => {
+            o[a] = b;
+            o[b] = a;
+          });
+          return chunks.map((x) => (x[1] ? x[0] + (o[x[1]] || x[1]) : x));
+        }
+
+        function generate() {
+          const scramble = $('.scramble').value;
+
+          const faces = getFaces(scramble);
+
+
+          const xCenters = getXCenters(faces);
+
+          const xcUnsolved = getUnsolvedX(xCenters);
+
+          const xCentersFlat = xCenters.flat();
+
+          let xCenterMemo = '';
+
+          for (let k = 99; k--; ) {
+            const flat = xcUnsolved.flat();
+            if (!flat.length) break;
+            const cycleStart = [options.xCenterBuffer, ...options.xCenterCycles].find(x => flat.includes(x));
+
+            const arr = xcUnsolved[(options.xCenterScheme.indexOf(cycleStart) / 4) | 0];
+            arr.splice(arr.indexOf(cycleStart), 1);
+            arr.push(cycleStart);
+
+            let piece = cycleStart;
+            xCenterMemo += piece;
+            for (let j = 99; j--; ) {
+              piece = xcUnsolved[colors.indexOf(xCentersFlat[options.xCenterScheme.indexOf(piece)])].shift();
+              xCenterMemo += piece;
+              if (piece === cycleStart) break;
+            }
+          }
+
+          $('.x-center-memo').innerText = swaps(
+            chunk(xCenterMemo.replace(new RegExp(options.xCenterBuffer, 'g'), ''), 2),
+            options.xCenterSwaps
+          ).join(' ');
+
+
+          const plusCenters = getPlusCenters(faces);
+
+          const pluscUnsolved = getUnsolvedPlus(plusCenters);
+
+          const plusCentersFlat = plusCenters.flat();
+
+          let plusCenterMemo = '';
+
+          for (let k = 99; k--; ) {
+            const flat = pluscUnsolved.flat();
+            if (!flat.length) break;
+            const cycleStart = [options.plusCenterBuffer, ...options.plusCenterCycles].find(x => flat.includes(x));
+
+            const arr = pluscUnsolved[(options.plusCenterScheme.indexOf(cycleStart) / 4) | 0];
+            arr.splice(arr.indexOf(cycleStart), 1);
+            arr.push(cycleStart);
+
+            let piece = cycleStart;
+            plusCenterMemo += piece;
+            for (let j = 99; j--; ) {
+              piece = pluscUnsolved[colors.indexOf(plusCentersFlat[options.plusCenterScheme.indexOf(piece)])].shift();
+              plusCenterMemo += piece;
+              if (piece === cycleStart) break;
+            }
+          }
+
+          $('.plus-center-memo').innerText = swaps(
+            chunk(plusCenterMemo.replace(new RegExp(options.plusCenterBuffer, 'g'), ''), 2),
+            options.plusCenterSwaps
+          ).join(' ');
+
+
+          const wings = getWings(faces);
+
+          let wingMemo = '';
+          let unsolvedWings = wings.flatMap((x, i) => (getWingLocation(x) === i ? [] : [options.wingScheme[i]]));
+
+          for (let k = 99; k--; ) {
+            if (!unsolvedWings.length) break;
+            const cycleStart = [options.wingBuffer, ...options.wingCycles].find(x => unsolvedWings.includes(x));
+
+            let piece = cycleStart;
+            wingMemo += piece;
+
+            for (let j = 99; j--; ) {
+              piece = options.wingScheme[getWingLocation(wings[options.wingScheme.indexOf(piece)])];
+              const idx = unsolvedWings.indexOf(piece);
+              if (idx < 0) {
+                throw new Error("Unsolved wing solved (looks like there's a bug)");
+              }
+              unsolvedWings.splice(idx, 1);
+              wingMemo += piece;
+              if (piece === cycleStart) break;
+            }
+          }
+
+          $('.wing-memo').innerText = swaps(chunk(wingMemo.replace(new RegExp(options.wingBuffer, 'g'), ''), 2), options.wingSwaps).join(
+            ' '
+          );
+
+          const midges = getMidges(faces);
+
+          let midgeMemo = '';
+          let unsolvedMidges = midges.flatMap((x, i) => (getWingLocation(x) === i ? [] : [options.midgeScheme[i]]));
+
+          for (let k = 99; k--; ) {
+            if (!unsolvedMidges.length) break;
+            const cycleStart = [options.midgeBuffer, ...options.midgeCycles].find(x => unsolvedMidges.includes(x));
+            const cycleStartStickers = allMidgeStickers(cycleStart);
+
+            let piece = cycleStart;
+            midgeMemo += piece;
+
+            for (let j = 99; j--; ) {
+              piece = options.midgeScheme[getWingLocation(midges[options.midgeScheme.indexOf(piece)])];
+              allMidgeStickers(piece).forEach((x) => {
+                const idx = unsolvedMidges.indexOf(x);
+                if (idx < 0) {
+                  throw new Error("Unsolved midge solved (looks like there's a bug)");
+                }
+                unsolvedMidges.splice(idx, 1);
+              });
+              midgeMemo += piece;
+              if (cycleStartStickers.includes(piece)) break;
+            }
+          }
+
+          const regM = allMidgeStickers(options.midgeBuffer).join('|');
+          $('.midge-memo').innerText = swaps(chunk(midgeMemo.replace(new RegExp(regM, 'g'), ''), 2), options.midgeSwaps).join(' ');
+
+          const corners = getCorners(faces);
+
+          let cornerMemo = '';
+          let unsolvedCorners = corners.flatMap((x, i) => (getCornerLocation(x) === i ? [] : [options.cornerScheme[i]]));
+
+          for (let k = 99; k--; ) {
+            if (!unsolvedCorners.length) break;
+            const cycleStart = [options.cornerBuffer, ...options.cornerCycles].find(x => unsolvedCorners.includes(x));
+            const cycleStartStickers = allCornerStickers(cycleStart);
+
+            let piece = cycleStart;
+            cornerMemo += piece;
+
+            for (let j = 99; j--; ) {
+              piece = options.cornerScheme[getCornerLocation(corners[options.cornerScheme.indexOf(piece)])];
+              allCornerStickers(piece).forEach((x) => {
+                const idx = unsolvedCorners.indexOf(x);
+                if (idx < 0) {
+                  throw new Error("Unsolved corner solved (looks like there's a bug)");
+                }
+                unsolvedCorners.splice(idx, 1);
+              });
+              cornerMemo += piece;
+              if (cycleStartStickers.includes(piece)) break;
+            }
+          }
+
+          const reg = allCornerStickers(options.cornerBuffer).join('|');
+          $('.corner-memo').innerText = chunk(cornerMemo.replace(new RegExp(reg, 'g'), ''), 2).join(' ');
+        }
+
+        function checkXCenter() {
+          const memo = $('.check-x-center').value.toUpperCase().replace(/ |,/g, '');
+          $('.x-center-feedback').innerText = '';
+
+          if ([...memo].some((x) => ![...options.xCenterScheme].includes(x))) {
+            $('.x-center-feedback').innerText = '❌ Invalid, please only use letters in your x-center lettering scheme.';
+            return;
+          }
+
+          if ([...memo].includes(options.xCenterBuffer)) {
+            $('.x-center-feedback').innerText = `❌ ${options.xCenterBuffer} is your buffer, so it shouldn't be used in your memorization.`;
+            return;
+          }
+
+          const scramble = $('.scramble').value;
+
+          const faces = getFaces(scramble);
+
+          const xCenters = getXCenters(faces).flat();
+
+          const buf = options.xCenterScheme.indexOf(options.xCenterBuffer);
+
+          for (const c of swaps(chunk(memo, 2), options.xCenterSwaps).join('')) {
+            const i = options.xCenterScheme.indexOf(c);
+            [xCenters[buf], xCenters[i]] = [xCenters[i], xCenters[buf]];
+          }
+
+          const u = xCenters.flatMap((x, i) => (colors[(i / 4) | 0] === x ? [] : [options.xCenterScheme[i]]));
+          if (!u.length) {
+            $('.x-center-feedback').innerText = `✅ Looks good!`;
+          } else {
+            $('.x-center-feedback').innerText = `❌ Looks like there's an error. Unsolved x-centers after executing: ${u.join(', ')}`;
+          }
+        }
+
+        function checkPlusCenter() {
+          const memo = $('.check-plus-center').value.toUpperCase().replace(/ |,/g, '');
+          $('.plus-center-feedback').innerText = '';
+
+          if ([...memo].some((plus) => ![...options.plusCenterScheme].includes(plus))) {
+            $('.plus-center-feedback').innerText = '❌ Invalid, please only use letters in your plus-center lettering scheme.';
+            return;
+          }
+
+          if ([...memo].includes(options.plusCenterBuffer)) {
+            $('.plus-center-feedback').innerText = `❌ ${options.plusCenterBuffer} is your buffer, so it shouldn't be used in your memorization.`;
+            return;
+          }
+
+          const scramble = $('.scramble').value;
+
+          const faces = getFaces(scramble);
+
+          const plusCenters = getPlusCenters(faces).flat();
+
+          const buf = options.plusCenterScheme.indexOf(options.plusCenterBuffer);
+
+          for (const c of swaps(chunk(memo, 2), options.plusCenterSwaps).join('')) {
+            const i = options.plusCenterScheme.indexOf(c);
+            [plusCenters[buf], plusCenters[i]] = [plusCenters[i], plusCenters[buf]];
+          }
+
+          const u = plusCenters.flatMap((x, i) => (colors[(i / 4) | 0] === x ? [] : [options.plusCenterScheme[i]]));
+          if (!u.length) {
+            $('.plus-center-feedback').innerText = `✅ Looks good!`;
+          } else {
+            $('.plus-center-feedback').innerText = `❌ Looks like there's an error. Unsolved plus-centers after executing: ${u.join(', ')}`;
+          }
+        }
+
+        function checkWing() {
+          const memo = $('.check-wing').value.toUpperCase().replace(/ |,/g, '');
+          $('.wing-feedback').innerText = '';
+
+          if ([...memo].some((x) => ![...options.wingScheme].includes(x))) {
+            $('.wing-feedback').innerText = '❌ Invalid, please only use letters in your wing lettering scheme.';
+            return;
+          }
+
+          if ([...memo].includes(options.wingBuffer)) {
+            $('.wing-feedback').innerText = `❌ ${options.wingBuffer} is your buffer, so it shouldn't be used in your memorization.`;
+            return;
+          }
+
+          const scramble = $('.scramble').value;
+
+          const faces = getFaces(scramble);
+
+          const wings = getWings(faces);
+
+          const buf = options.wingScheme.indexOf(options.wingBuffer);
+
+          for (const c of swaps(chunk(memo, 2), options.wingSwaps).join('')) {
+            const i = options.wingScheme.indexOf(c);
+            [wings[buf], wings[i]] = [wings[i], wings[buf]];
+          }
+
+          const u = wings.flatMap((x, i) => (getWingLocation(x) === i ? [] : [options.wingScheme[i]]));
+          if (!u.length) {
+            $('.wing-feedback').innerText = `✅ Looks good!`;
+          } else {
+            $('.wing-feedback').innerText = `❌ Looks like there's an error. Unsolved wings after executing: ${u.join(', ')}`;
+          }
+        }
+
+        function checkMidge() {
+          const memo = $('.check-midge').value.toUpperCase().replace(/ |,/g, '');
+          $('.midge-feedback').innerText = '';
+
+          if ([...memo].some((x) => ![...options.midgeScheme].includes(x))) {
+            $('.midge-feedback').innerText = '❌ Invalid, please only use letters in your midge lettering scheme.';
+            return;
+          }
+
+          const bufs = allMidgeStickers(options.midgeBuffer);
+
+          const kb = [...memo].find((x) => bufs.includes(x));
+
+          if (kb) {
+            $('.midge-feedback').innerText = `❌ ${kb} is your buffer, so it shouldn't be used in your memorization.`;
+            return;
+          }
+
+          const scramble = $('.scramble').value;
+
+          const faces = getFaces(scramble);
+
+          const midges = getMidges(faces);
+
+          const buf = options.midgeScheme.indexOf(options.midgeBuffer);
+
+          for (const c of swaps(chunk(memo, 2), options.midgeSwaps).join('')) {
+            const stickers = allMidgeStickers(c);
+            bufs.forEach((b, i) => {
+              const bufI = options.midgeScheme.indexOf(b);
+              const si = options.midgeScheme.indexOf(stickers[i]);
+              [midges[bufI], midges[si]] = [midges[si], midges[bufI]];
+            });
+          }
+
+          const u = midges.flatMap((x, i) => (getWingLocation(x) === i ? [] : [options.midgeScheme[i]]));
+
+          if (!u.length) {
+            $('.midge-feedback').innerText = `✅ Looks good!`;
+          } else {
+            $('.midge-feedback').innerText = `❌ Looks like there's an error. Unsolved midge stickers after executing: ${u.join(', ')}`;
+          }
+        }
+
+        function checkCorner() {
+          const memo = $('.check-corner').value.toUpperCase().replace(/ |,/g, '');
+          $('.corner-feedback').innerText = '';
+
+          if ([...memo].some((x) => ![...options.cornerScheme].includes(x))) {
+            $('.corner-feedback').innerText = '❌ Invalid, please only use letters in your corner lettering scheme.';
+            return;
+          }
+
+          const bufs = allCornerStickers(options.cornerBuffer);
+
+          const kb = [...memo].find((x) => bufs.includes(x));
+
+          if (kb) {
+            $('.corner-feedback').innerText = `❌ ${kb} is your buffer, so it shouldn't be used in your memorization.`;
+            return;
+          }
+
+          const scramble = $('.scramble').value;
+
+          const faces = getFaces(scramble);
+
+          const corners = getCorners(faces);
+
+          const buf = options.cornerScheme.indexOf(options.cornerBuffer);
+
+          for (const c of memo) {
+            const stickers = allCornerStickers(c);
+            bufs.forEach((b, i) => {
+              const bufI = options.cornerScheme.indexOf(b);
+              const si = options.cornerScheme.indexOf(stickers[i]);
+              [corners[bufI], corners[si]] = [corners[si], corners[bufI]];
+            });
+          }
+
+          const u = corners.flatMap((x, i) => (getCornerLocation(x) === i ? [] : [options.cornerScheme[i]]));
+
+          if (!u.length) {
+            $('.corner-feedback').innerText = `✅ Looks good!`;
+          } else {
+            $('.corner-feedback').innerText = `❌ Looks like there's an error. Unsolved corner stickers after executing: ${u.join(', ')}`;
+          }
+        }
+
+        $('.btn-check-x-center').addEventListener('click', checkXCenter);
+        $('.btn-check-plus-center').addEventListener('click', checkPlusCenter);
+        $('.btn-check-wing').addEventListener('click', checkWing);
+        $('.btn-check-midge').addEventListener('click', checkMidge);
+        $('.btn-check-corner').addEventListener('click', checkCorner);
+
+        $('.generate-memo').addEventListener('click', () => {
+          if (!validateOptions()) return;
+
+          $('.generated').style.display = 'block';
+          $('.check').style.display = 'none';
+
+          generate();
+        });
+
+        $('.check-memo').addEventListener('click', () => {
+          if (!validateOptions()) return;
+          $('.generated').style.display = 'none';
+          $('.check').style.display = 'block';
+          generate();
+        });
+
+        $('.draw-scramble').addEventListener('click', () => {
+          draw();
+          $('#draw-dialog').showModal();
+        });
+
+        $('.settings').addEventListener('click', () => {
+          $('#settings-dialog').showModal();
+        });
+
+        $('.x-center-scheme').addEventListener('input', () => {
+          options.xCenterScheme = $('.x-center-scheme').value;
+          localStorage.setItem('5bld-options', JSON.stringify(options));
+        });
+
+        $('.x-center-buffer').addEventListener('input', () => {
+          options.xCenterBuffer = $('.x-center-buffer').value;
+          localStorage.setItem('5bld-options', JSON.stringify(options));
+        });
+
+        $('.x-center-cycles').addEventListener('input', () => {
+          options.xCenterCycles = $('.x-center-cycles').value;
+          localStorage.setItem('5bld-options', JSON.stringify(options));
+        });
+
+        $('.x-center-swaps').addEventListener('input', () => {
+          options.xCenterSwaps = $('.x-center-swaps').value;
+          localStorage.setItem('5bld-options', JSON.stringify(options));
+        });
+
+        $('.plus-center-scheme').addEventListener('input', () => {
+          options.plusCenterScheme = $('.plus-center-scheme').value;
+          localStorage.setItem('5bld-options', JSON.stringify(options));
+        });
+
+        $('.plus-center-buffer').addEventListener('input', () => {
+          options.plusCenterBuffer = $('.plus-center-buffer').value;
+          localStorage.setItem('5bld-options', JSON.stringify(options));
+        });
+
+        $('.plus-center-cycles').addEventListener('input', () => {
+          options.plusCenterCycles = $('.plus-center-cycles').value;
+          localStorage.setItem('5bld-options', JSON.stringify(options));
+        });
+
+        $('.plus-center-swaps').addEventListener('input', () => {
+          options.plusCenterSwaps = $('.plus-center-swaps').value;
+          localStorage.setItem('5bld-options', JSON.stringify(options));
+        });
+
+        $('.wing-scheme').addEventListener('input', () => {
+          options.wingScheme = $('.wing-scheme').value;
+          localStorage.setItem('5bld-options', JSON.stringify(options));
+        });
+
+        $('.wing-buffer').addEventListener('input', () => {
+          options.wingBuffer = $('.wing-buffer').value;
+          localStorage.setItem('5bld-options', JSON.stringify(options));
+        });
+
+        $('.wing-cycles').addEventListener('input', () => {
+          options.wingCycles = $('.wing-cycles').value;
+          localStorage.setItem('5bld-options', JSON.stringify(options));
+        });
+
+        $('.wing-swaps').addEventListener('input', () => {
+          options.wingSwaps = $('.wing-swaps').value;
+          localStorage.setItem('5bld-options', JSON.stringify(options));
+        });
+
+        $('.midge-scheme').addEventListener('input', () => {
+          options.midgeScheme = $('.midge-scheme').value;
+          localStorage.setItem('5bld-options', JSON.stringify(options));
+        });
+
+        $('.midge-buffer').addEventListener('input', () => {
+          options.midgeBuffer = $('.midge-buffer').value;
+          localStorage.setItem('5bld-options', JSON.stringify(options));
+        });
+
+        $('.midge-cycles').addEventListener('input', () => {
+          options.midgeCycles = $('.midge-cycles').value;
+          localStorage.setItem('5bld-options', JSON.stringify(options));
+        });
+
+        $('.midge-swaps').addEventListener('input', () => {
+          options.midgeSwaps = $('.midge-swaps').value;
+          localStorage.setItem('5bld-options', JSON.stringify(options));
+        });
+
+        $('.corner-scheme').addEventListener('input', () => {
+          options.cornerScheme = $('.corner-scheme').value;
+          localStorage.setItem('5bld-options', JSON.stringify(options));
+        });
+
+        $('.corner-buffer').addEventListener('input', () => {
+          options.cornerBuffer = $('.corner-buffer').value;
+          localStorage.setItem('5bld-options', JSON.stringify(options));
+        });
+
+        $('.corner-cycles').addEventListener('input', () => {
+          options.cornerCycles = $('.corner-cycles').value;
+          localStorage.setItem('5bld-options', JSON.stringify(options));
+        });
+      })();
+    </script>
+  </body>
+</html>
