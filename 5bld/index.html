@@ -9,8 +9,7 @@
         box-sizing: border-box;
       }
       body {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans',
-          'Helvetica Neue', sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         margin: 0;
       }
 
@@ -120,6 +119,9 @@
         <input type="text" class="input scramble" value="" />
       </div>
       <br />
+      <button class="btn generate-scramble">Generate scramble</button>
+      <br />
+      <br />
       <button class="btn settings">Settings</button>
       <br />
       <br />
@@ -191,8 +193,8 @@
 
         <p>Default settings are for U2/U2/r2/m2/OP.</p>
         <p>
-          Swapping letters on the second letter of a pair is just for U2/r2/m2.<br />You can also swap them during execution instead of
-          memorization (leave those settings blank in that case)
+          Swapping letters on the second letter of a pair is just for U2/r2/m2.<br />You can also swap them during execution instead of memorization (leave those
+          settings blank in that case)
         </p>
 
         <h3>X-centers</h3>
@@ -208,7 +210,7 @@
         <p>Letters to swap on the second letter of a pair: <input type="text" class="input plus-center-swaps" value="AC" /></p>
 
         <h3>Wings</h3>
-        <p><input type="checkbox" class="wing-mirror" id="wing-mirror"> <label for="wing-mirror">Use mirrored wings (FUr instead of UFr)</label></p>
+        <p><input type="checkbox" class="wing-mirror" id="wing-mirror" /> <label for="wing-mirror">Use mirrored wings (FUr instead of UFr)</label></p>
         <p>Lettering scheme: <input type="text" class="input wing-scheme" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
         <p>Order to look for new cycles: <input type="text" class="input wing-cycles" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
         <p>Buffer: <input type="text" class="input wing-buffer" value="U" /></p>
@@ -282,26 +284,26 @@
         const colors = [W, O, G, R, B, Y];
 
         const orientations = {
-          [[W, G]]: "",
-          [[W, O]]: "y",
+          [[W, G]]: '',
+          [[W, O]]: 'y',
           [[W, R]]: "y'",
-          [[W, B]]: "y2",
-          [[R, G]]: "z",
-          [[G, O]]: "z y",
+          [[W, B]]: 'y2',
+          [[R, G]]: 'z',
+          [[G, O]]: 'z y',
           [[B, R]]: "z y'",
-          [[O, B]]: "z y2",
+          [[O, B]]: 'z y2',
           [[O, G]]: "z'",
           [[B, O]]: "z' y",
           [[G, R]]: "z' y'",
           [[R, B]]: "z' y2",
-          [[Y, G]]: "z2",
-          [[Y, O]]: "z2 y",
+          [[Y, G]]: 'z2',
+          [[Y, O]]: 'z2 y',
           [[Y, R]]: "z2 y'",
-          [[Y, B]]: "z2 y2",
-          [[B, W]]: "x",
-          [[R, W]]: "x y",
+          [[Y, B]]: 'z2 y2',
+          [[B, W]]: 'x',
+          [[R, W]]: 'x y',
           [[O, W]]: "x y'",
-          [[G, W]]: "x y2",
+          [[G, W]]: 'x y2',
           [[G, Y]]: "x'",
           [[O, Y]]: "x' y",
           [[R, Y]]: "x' y'",
@@ -316,6 +318,39 @@
 
         const chunk = (a, b) => (a.length <= b ? [a] : [a.slice(0, b), ...chunk(a.slice(b), b)]);
 
+        function makeScramble() {
+          const rand = (a, b) => Math.floor(Math.random() * (b - a + 1) + a);
+          const pick = (a) => a[rand(0, a.length - 1)];
+
+          const axes = [
+            ['U', 'D', 'Uw', 'Dw'],
+            ['R', 'L', 'Rw', 'Lw'],
+            ['F', 'B', 'Fw', 'Bw'],
+          ];
+
+          const scram = [];
+
+          let doneMoves = 0;
+          let lastAxis = -1;
+
+          for (let moves = 60; moves--; ) {
+            let a, b;
+            do {
+              a = rand(0, axes.length - 1);
+              b = rand(0, axes[a].length - 1);
+              if (a !== lastAxis) {
+                doneMoves = 0;
+                lastAxis = a;
+              }
+            } while ((doneMoves >> b) & 1);
+            doneMoves |= 1 << b;
+
+            scram.push(axes[a][b] + pick(['', '2', "'"]));
+          }
+
+          return scram.join(' ') + pick(['', ' 3Rw', ' 3Rw2', " 3Rw'", ' 3Fw', " 3Fw'"]) + pick(['', ' 3Uw', ' 3Uw2', " 3Uw'"]);
+        }
+
         function validateOptions() {
           if (!(/^[A-Z]{24}/.test(options.xCenterScheme) && new Set(options.xCenterScheme).size === 24)) {
             alert('Invalid x-center lettering scheme, please enter 24 unique uppercase letters.');
@@ -325,16 +360,16 @@
             alert('Invalid x-center buffer, please enter a letter in your x-center lettering scheme.');
             return false;
           }
-          if (!(/^[A-Z]{23,24}/.test(options.xCenterCycles) && [...options.xCenterScheme].every(x => x === options.xCenterBuffer || options.xCenterCycles.includes(x)))) {
+          if (
+            !(
+              /^[A-Z]{23,24}/.test(options.xCenterCycles) &&
+              [...options.xCenterScheme].every((x) => x === options.xCenterBuffer || options.xCenterCycles.includes(x))
+            )
+          ) {
             alert('Invalid order to look for new cycles (x-centers), please use the letters in your lettering scheme.');
             return false;
           }
-          if (
-            !(
-              /^([A-Z][A-Z](,[A-Z][A-Z])*)?$/.test(options.xCenterSwaps) &&
-              [...options.xCenterSwaps].every((x) => [',', ...options.xCenterScheme].includes(x))
-            )
-          ) {
+          if (!(/^([A-Z][A-Z](,[A-Z][A-Z])*)?$/.test(options.xCenterSwaps) && [...options.xCenterSwaps].every((x) => [',', ...options.xCenterScheme].includes(x)))) {
             alert('Invalid list of letters to swap on the second letter of a pair (x-centers).');
             return false;
           }
@@ -347,7 +382,12 @@
             alert('Invalid plus-center buffer, please enter a letter in your plus-center lettering scheme.');
             return false;
           }
-          if (!(/^[A-Z]{23,24}/.test(options.plusCenterCycles) && [...options.plusCenterScheme].every(x => x === options.plusCenterBuffer || options.plusCenterCycles.includes(x)))) {
+          if (
+            !(
+              /^[A-Z]{23,24}/.test(options.plusCenterCycles) &&
+              [...options.plusCenterScheme].every((x) => x === options.plusCenterBuffer || options.plusCenterCycles.includes(x))
+            )
+          ) {
             alert('Invalid order to look for new cycles (plus-centers), please use the letters in your lettering scheme.');
             return false;
           }
@@ -369,16 +409,11 @@
             alert('Invalid wing buffer, please enter a letter in your wing lettering scheme.');
             return false;
           }
-          if (!(/^[A-Z]{23,24}/.test(options.wingCycles) && [...options.wingScheme].every(x => x === options.wingBuffer || options.wingCycles.includes(x)))) {
+          if (!(/^[A-Z]{23,24}/.test(options.wingCycles) && [...options.wingScheme].every((x) => x === options.wingBuffer || options.wingCycles.includes(x)))) {
             alert('Invalid order to look for new cycles (wings), please use the letters in your lettering scheme.');
             return false;
           }
-          if (
-            !(
-              /^([A-Z][A-Z](,[A-Z][A-Z])*)?$/.test(options.wingSwaps) &&
-              [...options.wingSwaps].every((x) => [',', ...options.wingScheme].includes(x))
-            )
-          ) {
+          if (!(/^([A-Z][A-Z](,[A-Z][A-Z])*)?$/.test(options.wingSwaps) && [...options.wingSwaps].every((x) => [',', ...options.wingScheme].includes(x)))) {
             alert('Invalid list of letters to swap on the second letter of a pair (wings).');
             return false;
           }
@@ -392,16 +427,11 @@
             return false;
           }
           const mbfs = allMidgeStickers(options.midgeBuffer);
-          if (!(/^[A-Z]{22,24}/.test(options.midgeCycles) && [...options.midgeScheme].every(x => mbfs.includes(x) || options.midgeCycles.includes(x)))) {
+          if (!(/^[A-Z]{22,24}/.test(options.midgeCycles) && [...options.midgeScheme].every((x) => mbfs.includes(x) || options.midgeCycles.includes(x)))) {
             alert('Invalid order to look for new cycles (midges), please use the letters in your lettering scheme.');
             return false;
           }
-          if (
-            !(
-              /^([A-Z][A-Z](,[A-Z][A-Z])*)?$/.test(options.midgeSwaps) &&
-              [...options.midgeSwaps].every((x) => [',', ...options.midgeScheme].includes(x))
-            )
-          ) {
+          if (!(/^([A-Z][A-Z](,[A-Z][A-Z])*)?$/.test(options.midgeSwaps) && [...options.midgeSwaps].every((x) => [',', ...options.midgeScheme].includes(x)))) {
             alert('Invalid list of letters to swap on the second letter of a pair (midges).');
             return false;
           }
@@ -415,7 +445,7 @@
             return false;
           }
           const bfs = allCornerStickers(options.cornerBuffer);
-          if (!(/^[A-Z]{21,24}/.test(options.cornerCycles) && [...options.cornerScheme].every(x => bfs.includes(x) || options.cornerCycles.includes(x)))) {
+          if (!(/^[A-Z]{21,24}/.test(options.cornerCycles) && [...options.cornerScheme].every((x) => bfs.includes(x) || options.cornerCycles.includes(x)))) {
             alert('Invalid order to look for new cycles (corners), please use the letters in your lettering scheme.');
             return false;
           }
@@ -423,7 +453,7 @@
         }
 
         function getFaces(scram) {
-          const f = s => {
+          const f = (s) => {
             const a = chunk(
               window['sr-visualizer'].cube({
                 cubeSize: 5,
@@ -432,10 +462,10 @@
               }),
               5 * 5
             );
-            return [0, 4, 2, 1, 5, 3].map(x => a[x]);
+            return [0, 4, 2, 1, 5, 3].map((x) => a[x]);
           };
           let faces = f(scram);
-          const k = orientations[[0, 2].map(x => faces[x][12])];
+          const k = orientations[[0, 2].map((x) => faces[x][12])];
           if (k) {
             faces = f(scram + ' ' + k);
           }
@@ -448,9 +478,7 @@
 
         function getCornerLocation([a, b, c]) {
           return cornerOpposites.findIndex(
-            (x, i) =>
-              ((i / 4) | 0) === colors.indexOf(a) &&
-              x.map((x) => (x / 4) | 0).sort() + '' === [b, c].map((x) => colors.indexOf(x)).sort() + ''
+            (x, i) => ((i / 4) | 0) === colors.indexOf(a) && x.map((x) => (x / 4) | 0).sort() + '' === [b, c].map((x) => colors.indexOf(x)).sort() + ''
           );
         }
 
@@ -464,33 +492,21 @@
 
         function getXCenters(faces) {
           return faces.map((x) => {
-            const [ ,  ,  ,  ,  ,
-                    , a,  , b,  ,
-                    ,  ,  ,  ,  ,
-                    , d,  , c,  ,
-                    ,  ,  ,  ,  ] = x;
+            const [, , , , , , a, , b, , , , , , , , d, , c, , , , , ,] = x;
             return [a, b, c, d];
           });
         }
 
         function getPlusCenters(faces) {
           return faces.map((x) => {
-            const [ ,  ,  ,  ,  ,
-                    ,  , a,  ,  ,
-                    , d,  , b,  ,
-                    ,  , c,  ,  ,
-                    ,  ,  ,  ,  ] = x;
+            const [, , , , , , , a, , , , d, , b, , , , c, , , , , , ,] = x;
             return [a, b, c, d];
           });
         }
 
         function getWings(faces) {
           const wingStickers = faces.flatMap((x) => {
-            const [ , a,  , b,  ,
-                   h,  ,  ,  , c,
-                    ,  ,  ,  ,  ,
-                   g,  ,  ,  , d,
-                    , f,  , e,  ] = x;
+            const [, a, , b, , h, , , , c, , , , , , g, , , , d, , f, , e] = x;
             return [
               [a, b],
               [c, d],
@@ -499,16 +515,12 @@
             ];
           });
 
-          return wingStickers.map((x, i) => !options.wingMirror ? [x[1], wingStickers[wingOpposites[i]][0]] : [x[0], wingStickers[wingOpposites[i]][1]]);
+          return wingStickers.map((x, i) => (!options.wingMirror ? [x[1], wingStickers[wingOpposites[i]][0]] : [x[0], wingStickers[wingOpposites[i]][1]]));
         }
 
         function getMidges(faces) {
           const stickers = faces.flatMap((x) => {
-            const [ ,  , a,  ,  ,
-                    ,  ,  ,  ,  ,
-                   d,  ,  ,  , b,
-                    ,  ,  ,  ,  ,
-                    ,  , c,  ,  ] = x;
+            const [, , a, , , , , , , , d, , , , b, , , , , , , , c, ,] = x;
             return [a, b, c, d];
           });
 
@@ -517,11 +529,7 @@
 
         function getCorners(faces) {
           const cornerStickers = faces.flatMap((x) => {
-            const [a,  ,  ,  , b,
-                    ,  ,  ,  ,  ,
-                    ,  ,  ,  ,  ,
-                    ,  ,  ,  ,  ,
-                   d,  ,  ,  , c] = x;
+            const [a, , , , b, , , , , , , , , , , , , , , , d, , , , c] = x;
             return [a, b, c, d];
           });
 
@@ -540,9 +548,7 @@
           const faces = getFaces($('.scramble').value);
 
           const [top, left, front, right, back, bottom] = faces.map((f) => {
-            return `<div class="face">${f
-              .map((x) => `<div class="${`white red green yellow orange blue`.split(' ')[x]}"></div>`)
-              .join('')}</div>`;
+            return `<div class="face">${f.map((x) => `<div class="${`white red green yellow orange blue`.split(' ')[x]}"></div>`).join('')}</div>`;
           });
           const empty = `<div></div>`;
           document.querySelector('.cube').innerHTML = `
@@ -566,7 +572,6 @@
 
           const faces = getFaces(scramble);
 
-
           const xCenters = getXCenters(faces);
 
           const xcUnsolved = getUnsolvedX(xCenters);
@@ -578,7 +583,7 @@
           for (let k = 99; k--; ) {
             const flat = xcUnsolved.flat();
             if (!flat.length) break;
-            const cycleStart = [options.xCenterBuffer, ...options.xCenterCycles].find(x => flat.includes(x));
+            const cycleStart = [options.xCenterBuffer, ...options.xCenterCycles].find((x) => flat.includes(x));
 
             const arr = xcUnsolved[(options.xCenterScheme.indexOf(cycleStart) / 4) | 0];
             arr.splice(arr.indexOf(cycleStart), 1);
@@ -593,11 +598,7 @@
             }
           }
 
-          $('.x-center-memo').innerText = swaps(
-            chunk(xCenterMemo.replace(new RegExp(options.xCenterBuffer, 'g'), ''), 2),
-            options.xCenterSwaps
-          ).join(' ');
-
+          $('.x-center-memo').innerText = swaps(chunk(xCenterMemo.replace(new RegExp(options.xCenterBuffer, 'g'), ''), 2), options.xCenterSwaps).join(' ');
 
           const plusCenters = getPlusCenters(faces);
 
@@ -610,7 +611,7 @@
           for (let k = 99; k--; ) {
             const flat = pluscUnsolved.flat();
             if (!flat.length) break;
-            const cycleStart = [options.plusCenterBuffer, ...options.plusCenterCycles].find(x => flat.includes(x));
+            const cycleStart = [options.plusCenterBuffer, ...options.plusCenterCycles].find((x) => flat.includes(x));
 
             const arr = pluscUnsolved[(options.plusCenterScheme.indexOf(cycleStart) / 4) | 0];
             arr.splice(arr.indexOf(cycleStart), 1);
@@ -625,11 +626,9 @@
             }
           }
 
-          $('.plus-center-memo').innerText = swaps(
-            chunk(plusCenterMemo.replace(new RegExp(options.plusCenterBuffer, 'g'), ''), 2),
-            options.plusCenterSwaps
-          ).join(' ');
-
+          $('.plus-center-memo').innerText = swaps(chunk(plusCenterMemo.replace(new RegExp(options.plusCenterBuffer, 'g'), ''), 2), options.plusCenterSwaps).join(
+            ' '
+          );
 
           const wings = getWings(faces);
 
@@ -638,7 +637,7 @@
 
           for (let k = 99; k--; ) {
             if (!unsolvedWings.length) break;
-            const cycleStart = [options.wingBuffer, ...options.wingCycles].find(x => unsolvedWings.includes(x));
+            const cycleStart = [options.wingBuffer, ...options.wingCycles].find((x) => unsolvedWings.includes(x));
 
             let piece = cycleStart;
             wingMemo += piece;
@@ -655,9 +654,7 @@
             }
           }
 
-          $('.wing-memo').innerText = swaps(chunk(wingMemo.replace(new RegExp(options.wingBuffer, 'g'), ''), 2), options.wingSwaps).join(
-            ' '
-          );
+          $('.wing-memo').innerText = swaps(chunk(wingMemo.replace(new RegExp(options.wingBuffer, 'g'), ''), 2), options.wingSwaps).join(' ');
 
           const midges = getMidges(faces);
 
@@ -666,7 +663,7 @@
 
           for (let k = 99; k--; ) {
             if (!unsolvedMidges.length) break;
-            const cycleStart = [options.midgeBuffer, ...options.midgeCycles].find(x => unsolvedMidges.includes(x));
+            const cycleStart = [options.midgeBuffer, ...options.midgeCycles].find((x) => unsolvedMidges.includes(x));
             const cycleStartStickers = allMidgeStickers(cycleStart);
 
             let piece = cycleStart;
@@ -696,7 +693,7 @@
 
           for (let k = 99; k--; ) {
             if (!unsolvedCorners.length) break;
-            const cycleStart = [options.cornerBuffer, ...options.cornerCycles].find(x => unsolvedCorners.includes(x));
+            const cycleStart = [options.cornerBuffer, ...options.cornerCycles].find((x) => unsolvedCorners.includes(x));
             const cycleStartStickers = allCornerStickers(cycleStart);
 
             let piece = cycleStart;
@@ -1042,6 +1039,10 @@
         $('.corner-cycles').addEventListener('input', () => {
           options.cornerCycles = $('.corner-cycles').value;
           localStorage.setItem('5bld-options', JSON.stringify(options));
+        });
+
+        $('.generate-scramble').addEventListener('click', () => {
+          $('.scramble').value = makeScramble();
         });
       })();
     </script>
