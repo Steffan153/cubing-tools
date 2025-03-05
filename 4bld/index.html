@@ -199,6 +199,7 @@
         <p>Letters to swap on the second letter of a pair: <input type="text" class="input center-swaps" value="BD" /></p>
 
         <h3>Wings</h3>
+        <p><input type="checkbox" class="wing-mirror" id="wing-mirror"> <label for="wing-mirror">Use mirrored wings (FUr instead of UFr)</label></p>
         <p>Lettering scheme: <input type="text" class="input wing-scheme" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
         <p>Order to look for new cycles: <input type="text" class="input wing-cycles" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
         <p>Buffer: <input type="text" class="input wing-buffer" value="U" /></p>
@@ -223,6 +224,7 @@
           centerCycles: 'ABCDEFGHIJKLMNOPQRSTUVWX',
           centerBuffer: 'A',
           centerSwaps: 'BD',
+          wingMirror: false,
           wingScheme: 'ABCDEFGHIJKLMNOPQRSTUVWX',
           wingCycles: 'ABCDEFGHIJKLMNOPQRSTUVWX',
           wingBuffer: 'U',
@@ -236,6 +238,7 @@
         $('.center-cycles').value = options.centerCycles;
         $('.center-buffer').value = options.centerBuffer;
         $('.center-swaps').value = options.centerSwaps;
+        $('.wing-mirror').checked = options.wingMirror;
         $('.wing-scheme').value = options.wingScheme;
         $('.wing-cycles').value = options.wingCycles;
         $('.wing-buffer').value = options.wingBuffer;
@@ -364,7 +367,7 @@
             ];
           });
 
-          return wingStickers.map((x, i) => [x[1], wingStickers[wingOpposites[i]][0]]);
+          return wingStickers.map((x, i) => options.wingMirror ? [x[1], wingStickers[wingOpposites[i]][0]] : [x[0], wingStickers[wingOpposites[i]][1]]);
         }
 
         function getCorners(faces) {
@@ -694,6 +697,11 @@
 
         $('.wing-scheme').addEventListener('input', () => {
           options.wingScheme = $('.wing-scheme').value;
+          localStorage.setItem('4bld-options', JSON.stringify(options));
+        });
+
+        $('.wing-mirror').addEventListener('input', () => {
+          options.wingMirror = $('.wing-mirror').checked;
           localStorage.setItem('4bld-options', JSON.stringify(options));
         });
 
