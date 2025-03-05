@@ -367,7 +367,7 @@
             ];
           });
 
-          return wingStickers.map((x, i) => options.wingMirror ? [x[1], wingStickers[wingOpposites[i]][0]] : [x[0], wingStickers[wingOpposites[i]][1]]);
+          return wingStickers.map((x, i) => !options.wingMirror ? [x[1], wingStickers[wingOpposites[i]][0]] : [x[0], wingStickers[wingOpposites[i]][1]]);
         }
 
         function getCorners(faces) {
