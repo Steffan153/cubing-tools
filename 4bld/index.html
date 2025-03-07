@@ -444,6 +444,8 @@
 
           const centersFlat = centers.flat();
 
+          const bufferFace = options.centerScheme.indexOf(options.centerBuffer) / 4 | 0;
+
           let centerMemo = '';
 
           for (let k = 99; k--; ) {
@@ -460,7 +462,12 @@
             for (let j = 99; j--; ) {
               piece = unsolved[colors.indexOf(centersFlat[options.centerScheme.indexOf(piece)])].shift();
               centerMemo += piece;
-              if (piece === cycleStart) break;
+              if (piece === cycleStart) {
+                if ((options.centerScheme.indexOf(piece) / 4 | 0) === bufferFace) {
+                  centerMemo = centerMemo.slice(0, -1);
+                }
+                break;
+              }
             }
           }
 

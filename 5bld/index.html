@@ -487,7 +487,7 @@
         }
 
         function allMidgeStickers(midge) {
-          return [midge, options.wingScheme[wingOpposites[options.wingScheme.indexOf(midge)]]];
+          return [midge, options.midgeScheme[wingOpposites[options.midgeScheme.indexOf(midge)]]];
         }
 
         function getXCenters(faces) {
@@ -577,6 +577,8 @@
           const xcUnsolved = getUnsolvedX(xCenters);
 
           const xCentersFlat = xCenters.flat();
+          
+          const bufferFace = options.xCenterScheme.indexOf(options.xCenterBuffer) / 4 | 0;
 
           let xCenterMemo = '';
 
@@ -594,7 +596,13 @@
             for (let j = 99; j--; ) {
               piece = xcUnsolved[colors.indexOf(xCentersFlat[options.xCenterScheme.indexOf(piece)])].shift();
               xCenterMemo += piece;
-              if (piece === cycleStart) break;
+              
+              if (piece === cycleStart) {
+                if ((options.xCenterScheme.indexOf(piece) / 4 | 0) === bufferFace) {
+                  xCenterMemo = xCenterMemo.slice(0, -1);
+                }
+                break;
+              }
             }
           }
 
@@ -605,6 +613,7 @@
           const pluscUnsolved = getUnsolvedPlus(plusCenters);
 
           const plusCentersFlat = plusCenters.flat();
+          const pBufferFace = options.plusCenterScheme.indexOf(options.plusCenterBuffer) / 4 | 0;
 
           let plusCenterMemo = '';
 
@@ -622,7 +631,13 @@
             for (let j = 99; j--; ) {
               piece = pluscUnsolved[colors.indexOf(plusCentersFlat[options.plusCenterScheme.indexOf(piece)])].shift();
               plusCenterMemo += piece;
-              if (piece === cycleStart) break;
+              
+              if (piece === cycleStart) {
+                if ((options.plusCenterScheme.indexOf(piece) / 4 | 0) === pBufferFace) {
+                  plusCenterMemo = plusCenterMemo.slice(0, -1);
+                }
+                break;
+              }
             }
           }
 
