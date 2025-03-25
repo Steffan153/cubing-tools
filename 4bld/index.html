@@ -296,7 +296,7 @@
         }
 
         function validateOptions() {
-          if (!(/^[A-Z]{24}/.test(options.centerScheme) && new Set(options.centerScheme).size === 24)) {
+          if (!(/^\p{L}{24}/ui.test(options.centerScheme) && new Set(options.centerScheme).size === 24)) {
             alert('Invalid center lettering scheme, please enter 24 unique uppercase letters.');
             return false;
           }
@@ -305,16 +305,16 @@
             return false;
           }
           if (
-            !(/^[A-Z]{23,24}/.test(options.centerCycles) && [...options.centerScheme].every((x) => x === options.centerBuffer || options.centerCycles.includes(x)))
+            !(/^\p{L}{23,24}/ui.test(options.centerCycles) && [...options.centerScheme].every((x) => x === options.centerBuffer || options.centerCycles.includes(x)))
           ) {
             alert('Invalid order to look for new cycles (centers), please use the letters in your lettering scheme.');
             return false;
           }
-          if (!(/^([A-Z][A-Z](,[A-Z][A-Z])*)?$/.test(options.centerSwaps) && [...options.centerSwaps].every((x) => [',', ...options.centerScheme].includes(x)))) {
+          if (!(/^(\p{L}\p{L}(,\p{L}\p{L})*)?$/ui.test(options.centerSwaps) && [...options.centerSwaps].every((x) => [',', ...options.centerScheme].includes(x)))) {
             alert('Invalid list of letters to swap on the second letter of a pair (centers).');
             return false;
           }
-          if (!(/^[A-Z]{24}/.test(options.wingScheme) && new Set(options.wingScheme).size === 24)) {
+          if (!(/^\p{L}{24}/ui.test(options.wingScheme) && new Set(options.wingScheme).size === 24)) {
             alert('Invalid wing lettering scheme, please enter 24 unique uppercase letters.');
             return false;
           }
@@ -322,15 +322,15 @@
             alert('Invalid wing buffer, please enter a letter in your wing lettering scheme.');
             return false;
           }
-          if (!(/^[A-Z]{23,24}/.test(options.wingCycles) && [...options.wingScheme].every((x) => x === options.wingBuffer || options.wingCycles.includes(x)))) {
+          if (!(/^\p{L}{23,24}/ui.test(options.wingCycles) && [...options.wingScheme].every((x) => x === options.wingBuffer || options.wingCycles.includes(x)))) {
             alert('Invalid order to look for new cycles (wings), please use the letters in your lettering scheme.');
             return false;
           }
-          if (!(/^([A-Z][A-Z](,[A-Z][A-Z])*)?$/.test(options.wingSwaps) && [...options.wingSwaps].every((x) => [',', ...options.wingScheme].includes(x)))) {
+          if (!(/^(\p{L}\p{L}(,\p{L}\p{L})*)?$/ui.test(options.wingSwaps) && [...options.wingSwaps].every((x) => [',', ...options.wingScheme].includes(x)))) {
             alert('Invalid list of letters to swap on the second letter of a pair (wings).');
             return false;
           }
-          if (!(/^[A-Z]{24}/.test(options.cornerScheme) && new Set(options.cornerScheme).size === 24)) {
+          if (!(/^\p{L}{24}/ui.test(options.cornerScheme) && new Set(options.cornerScheme).size === 24)) {
             alert('Invalid corner lettering scheme, please enter 24 unique uppercase letters.');
             return false;
           }
@@ -339,7 +339,7 @@
             return false;
           }
           const bfs = allCornerStickers(options.cornerBuffer);
-          if (!(/^[A-Z]{21,24}/.test(options.cornerCycles) && [...options.cornerScheme].every((x) => bfs.includes(x) || options.cornerCycles.includes(x)))) {
+          if (!(/^\p{L}{21,24}/ui.test(options.cornerCycles) && [...options.cornerScheme].every((x) => bfs.includes(x) || options.cornerCycles.includes(x)))) {
             alert('Invalid order to look for new cycles (corners), please use the letters in your lettering scheme.');
             return false;
           }
@@ -452,6 +452,8 @@
             const flat = unsolved.flat();
             if (!flat.length) break;
             const cycleStart = [options.centerBuffer, ...options.centerCycles].find((x) => flat.includes(x));
+
+            console.log(cycleStart);
 
             const arr = unsolved[(options.centerScheme.indexOf(cycleStart) / 4) | 0];
             arr.splice(arr.indexOf(cycleStart), 1);

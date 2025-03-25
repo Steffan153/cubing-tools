@@ -352,7 +352,7 @@
         }
 
         function validateOptions() {
-          if (!(/^[A-Z]{24}/.test(options.xCenterScheme) && new Set(options.xCenterScheme).size === 24)) {
+          if (!(/^\p{L}{24}/ui.test(options.xCenterScheme) && new Set(options.xCenterScheme).size === 24)) {
             alert('Invalid x-center lettering scheme, please enter 24 unique uppercase letters.');
             return false;
           }
@@ -362,19 +362,19 @@
           }
           if (
             !(
-              /^[A-Z]{23,24}/.test(options.xCenterCycles) &&
+              /^\p{L}{23,24}/ui.test(options.xCenterCycles) &&
               [...options.xCenterScheme].every((x) => x === options.xCenterBuffer || options.xCenterCycles.includes(x))
             )
           ) {
             alert('Invalid order to look for new cycles (x-centers), please use the letters in your lettering scheme.');
             return false;
           }
-          if (!(/^([A-Z][A-Z](,[A-Z][A-Z])*)?$/.test(options.xCenterSwaps) && [...options.xCenterSwaps].every((x) => [',', ...options.xCenterScheme].includes(x)))) {
+          if (!(/^(\p{L}\p{L}(,\p{L}\p{L})*)?$/ui.test(options.xCenterSwaps) && [...options.xCenterSwaps].every((x) => [',', ...options.xCenterScheme].includes(x)))) {
             alert('Invalid list of letters to swap on the second letter of a pair (x-centers).');
             return false;
           }
 
-          if (!(/^[A-Z]{24}/.test(options.plusCenterScheme) && new Set(options.plusCenterScheme).size === 24)) {
+          if (!(/^\p{L}{24}/ui.test(options.plusCenterScheme) && new Set(options.plusCenterScheme).size === 24)) {
             alert('Invalid plus-center lettering scheme, please enter 24 unique uppercase letters.');
             return false;
           }
@@ -384,7 +384,7 @@
           }
           if (
             !(
-              /^[A-Z]{23,24}/.test(options.plusCenterCycles) &&
+              /^\p{L}{23,24}/ui.test(options.plusCenterCycles) &&
               [...options.plusCenterScheme].every((x) => x === options.plusCenterBuffer || options.plusCenterCycles.includes(x))
             )
           ) {
@@ -393,7 +393,7 @@
           }
           if (
             !(
-              /^([A-Z][A-Z](,[A-Z][A-Z])*)?$/.test(options.plusCenterSwaps) &&
+              /^(\p{L}\p{L}(,\p{L}\p{L})*)?$/ui.test(options.plusCenterSwaps) &&
               [...options.plusCenterSwaps].every((x) => [',', ...options.plusCenterScheme].includes(x))
             )
           ) {
@@ -401,7 +401,7 @@
             return false;
           }
 
-          if (!(/^[A-Z]{24}/.test(options.wingScheme) && new Set(options.wingScheme).size === 24)) {
+          if (!(/^\p{L}{24}/ui.test(options.wingScheme) && new Set(options.wingScheme).size === 24)) {
             alert('Invalid wing lettering scheme, please enter 24 unique uppercase letters.');
             return false;
           }
@@ -409,16 +409,16 @@
             alert('Invalid wing buffer, please enter a letter in your wing lettering scheme.');
             return false;
           }
-          if (!(/^[A-Z]{23,24}/.test(options.wingCycles) && [...options.wingScheme].every((x) => x === options.wingBuffer || options.wingCycles.includes(x)))) {
+          if (!(/^\p{L}{23,24}/ui.test(options.wingCycles) && [...options.wingScheme].every((x) => x === options.wingBuffer || options.wingCycles.includes(x)))) {
             alert('Invalid order to look for new cycles (wings), please use the letters in your lettering scheme.');
             return false;
           }
-          if (!(/^([A-Z][A-Z](,[A-Z][A-Z])*)?$/.test(options.wingSwaps) && [...options.wingSwaps].every((x) => [',', ...options.wingScheme].includes(x)))) {
+          if (!(/^(\p{L}\p{L}(,\p{L}\p{L})*)?$/ui.test(options.wingSwaps) && [...options.wingSwaps].every((x) => [',', ...options.wingScheme].includes(x)))) {
             alert('Invalid list of letters to swap on the second letter of a pair (wings).');
             return false;
           }
 
-          if (!(/^[A-Z]{24}/.test(options.midgeScheme) && new Set(options.midgeScheme).size === 24)) {
+          if (!(/^\p{L}{24}/ui.test(options.midgeScheme) && new Set(options.midgeScheme).size === 24)) {
             alert('Invalid midge lettering scheme, please enter 24 unique uppercase letters.');
             return false;
           }
@@ -427,16 +427,16 @@
             return false;
           }
           const mbfs = allMidgeStickers(options.midgeBuffer);
-          if (!(/^[A-Z]{22,24}/.test(options.midgeCycles) && [...options.midgeScheme].every((x) => mbfs.includes(x) || options.midgeCycles.includes(x)))) {
+          if (!(/^\p{L}{22,24}/ui.test(options.midgeCycles) && [...options.midgeScheme].every((x) => mbfs.includes(x) || options.midgeCycles.includes(x)))) {
             alert('Invalid order to look for new cycles (midges), please use the letters in your lettering scheme.');
             return false;
           }
-          if (!(/^([A-Z][A-Z](,[A-Z][A-Z])*)?$/.test(options.midgeSwaps) && [...options.midgeSwaps].every((x) => [',', ...options.midgeScheme].includes(x)))) {
+          if (!(/^(\p{L}\p{L}(,\p{L}\p{L})*)?$/ui.test(options.midgeSwaps) && [...options.midgeSwaps].every((x) => [',', ...options.midgeScheme].includes(x)))) {
             alert('Invalid list of letters to swap on the second letter of a pair (midges).');
             return false;
           }
 
-          if (!(/^[A-Z]{24}/.test(options.cornerScheme) && new Set(options.cornerScheme).size === 24)) {
+          if (!(/^\p{L}{24}/ui.test(options.cornerScheme) && new Set(options.cornerScheme).size === 24)) {
             alert('Invalid corner lettering scheme, please enter 24 unique uppercase letters.');
             return false;
           }
@@ -445,7 +445,7 @@
             return false;
           }
           const bfs = allCornerStickers(options.cornerBuffer);
-          if (!(/^[A-Z]{21,24}/.test(options.cornerCycles) && [...options.cornerScheme].every((x) => bfs.includes(x) || options.cornerCycles.includes(x)))) {
+          if (!(/^\p{L}{21,24}/ui.test(options.cornerCycles) && [...options.cornerScheme].every((x) => bfs.includes(x) || options.cornerCycles.includes(x)))) {
             alert('Invalid order to look for new cycles (corners), please use the letters in your lettering scheme.');
             return false;
           }

@@ -283,7 +283,7 @@
         }
 
         function validateOptions() {
-          if (!(/^[A-Z]{24}/.test(options.edgeScheme) && new Set(options.edgeScheme).size === 24)) {
+          if (!(/^\p{L}{24}/ui.test(options.edgeScheme) && new Set(options.edgeScheme).size === 24)) {
             alert('Invalid edge lettering scheme, please enter 24 unique uppercase letters.');
             return false;
           }
@@ -293,16 +293,16 @@
           }
 
           const mbfs = allEdgeStickers(options.edgeBuffer);
-          if (!(/^[A-Z]{22,24}/.test(options.edgeCycles) && [...options.edgeScheme].every((x) => mbfs.includes(x) || options.edgeCycles.includes(x)))) {
+          if (!(/^\p{L}{22,24}/ui.test(options.edgeCycles) && [...options.edgeScheme].every((x) => mbfs.includes(x) || options.edgeCycles.includes(x)))) {
             alert('Invalid order to look for new cycles (edges), please use the letters in your lettering scheme.');
             return false;
           }
-          if (!(/^([A-Z][A-Z](,[A-Z][A-Z])*)?$/.test(options.edgeSwaps) && [...options.edgeSwaps].every((x) => [',', ...options.edgeScheme].includes(x)))) {
+          if (!(/^(\p{L}\p{L}(,\p{L}\p{L})*)?$/ui.test(options.edgeSwaps) && [...options.edgeSwaps].every((x) => [',', ...options.edgeScheme].includes(x)))) {
             alert('Invalid list of letters to swap on the second letter of a pair (edges).');
             return false;
           }
 
-          if (!(/^[A-Z]{24}/.test(options.cornerScheme) && new Set(options.cornerScheme).size === 24)) {
+          if (!(/^\p{L}{24}/ui.test(options.cornerScheme) && new Set(options.cornerScheme).size === 24)) {
             alert('Invalid corner lettering scheme, please enter 24 unique uppercase letters.');
             return false;
           }
@@ -311,7 +311,7 @@
             return false;
           }
           const bfs = allCornerStickers(options.cornerBuffer);
-          if (!(/^[A-Z]{21,24}/.test(options.cornerCycles) && [...options.cornerScheme].every((x) => bfs.includes(x) || options.cornerCycles.includes(x)))) {
+          if (!(/^\p{L}{21,24}/ui.test(options.cornerCycles) && [...options.cornerScheme].every((x) => bfs.includes(x) || options.cornerCycles.includes(x)))) {
             alert('Invalid order to look for new cycles (corners), please use the letters in your lettering scheme.');
             return false;
           }
