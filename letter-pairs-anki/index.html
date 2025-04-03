@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>4x4 Blindfolded Helper</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        margin: 0;
+      }
+
+      .btn {
+        background-color: #4343ff;
+        color: white;
+        padding: 9px 20px;
+        font-family: inherit;
+        font-size: 1.2rem;
+        border: none;
+        outline: none;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+
+      .btn:hover {
+        background-color: #1d1dbe;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
+      }
+
+      .input {
+        padding: 6px 10px;
+        border: 1px solid #ccc;
+        outline: none;
+        border-radius: 10px;
+        font: inherit;
+        width: 100% !important;
+        margin-top: 6px;
+        transition: box-shadow 0.2s;
+      }
+
+      .input:focus {
+        box-shadow: 0 0 3px #0006;
+      }
+
+      .output {
+        background-color: #eee;
+        padding: 8px;
+        white-space: pre-wrap;
+        cursor: pointer;
+        overflow: auto;
+      }
+
+      .input, .output {
+        height: 400px !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Letter Pair Sheet Helper</h1>
+      <p>Helper to convert letter pair sheet into a format for Anki.</p>
+      <p>Input/output should be comma-separated CSV.</p>
+      <br />
+      <div>
+        Input:<br />
+        <textarea class="input csv"></textarea>
+      </div>
+      
+      <p>Output:</p>
+      <pre class="output"></pre>
+      <p>Click to copy.</p>
+    <script>
+      (() => {
+        const $ = (x) => document.querySelector(x);
+        const $$ = (x) => document.querySelectorAll(x);
+
+        $('.csv').addEventListener('input', () => {
+          const csv = $('.csv').value;
+          const lines = csv.split('\n').map(x => {
+            return x.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(x => x.replace(/(^"|"$)/g, ''));
+          });
+          console.log(lines);
+          const cols = lines.shift().slice(1);
+          const rows = lines.map(x => x.shift());
+          const output = lines.flatMap((x, i) => x.flatMap((y, j) => y ? [[rows[i] + cols[j], y]] : []));
+          const csvOutput = output.map(x => x.map(y => y.includes(',') ? `"${y}"` : y).join(',')).join('\n');
+          $('.output').innerText = csvOutput;
+        });
+
+        $('.output').addEventListener('click', () => {
+          navigator.clipboard.writeText($('.output').innerText);
+        });
+      })();
+    </script>
+  </body>
+</html>
