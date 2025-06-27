@@ -83,7 +83,7 @@
         const $ = (x) => document.querySelector(x);
         const $$ = (x) => document.querySelectorAll(x);
 
-        $('.csv').addEventListener('input', () => {
+        const gen = () => {
           const csv = $('.csv').value;
           const invert = $('#transpose').checked;
           const lines = csv.split('\n').map(x => {
@@ -95,7 +95,10 @@
           const output = lines.flatMap((x, i) => x.flatMap((y, j) => y ? [[transpose ? cols[j] + rows[i] : rows[i] + cols[j], y]] : []));
           const csvOutput = output.map(x => x.map(y => y.includes(',') ? `"${y}"` : y).join(',')).join('\n');
           $('.output').innerText = csvOutput;
-        });
+        };
+
+        $('.csv').addEventListener('input', gen);
+        $('#transpose').addEventListener('change', gen);
 
         $('.output').addEventListener('click', () => {
           navigator.clipboard.writeText($('.output').innerText);
