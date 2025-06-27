@@ -89,10 +89,10 @@
           const lines = csv.split('\n').map(x => {
             return x.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(x => x.replace(/(^"|"$)/g, ''));
           });
-          console.log(lines);
-          const cols = lines.shift().slice(1);
-          const rows = lines.map(x => x.shift());
-          const output = lines.flatMap((x, i) => x.flatMap((y, j) => y ? [[transpose ? cols[j] + rows[i] : rows[i] + cols[j], y]] : []));
+          let cols = lines.shift().slice(1);
+          let rows = lines.map(x => x.shift());
+          if (invert) [cols, rows] = [rows, cols];
+          const output = lines.flatMap((x, i) => x.flatMap((y, j) => y ? [[rows[i] + cols[j], y]] : []));
           const csvOutput = output.map(x => x.map(y => y.includes(',') ? `"${y}"` : y).join(',')).join('\n');
           $('.output').innerText = csvOutput;
         };
