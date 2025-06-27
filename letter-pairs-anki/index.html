@@ -92,7 +92,7 @@
           let cols = lines.shift().slice(1);
           let rows = lines.map(x => x.shift());
           if (invert) [cols, rows] = [rows, cols];
-          const output = lines.flatMap((x, i) => x.flatMap((y, j) => y ? [[rows[i] + cols[j], y]] : []));
+          const output = rows.flatMap((x, i) => cols.flatMap((y, j) => y ? [[x + y, invert ? lines[j][i] : lines[i][j]]] : []));
           const csvOutput = output.map(x => x.map(y => y.includes(',') ? `"${y}"` : y).join(',')).join('\n');
           $('.output').innerText = csvOutput;
         };
