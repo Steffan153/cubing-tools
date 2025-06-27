@@ -578,6 +578,7 @@
           const xcUnsolved = getUnsolvedX(xCenters);
 
           const xCentersFlat = xCenters.flat();
+          let ff = xcUnsolved.flat().length;
           
           const bufferFace = options.xCenterScheme.indexOf(options.xCenterBuffer) / 4 | 0;
 
@@ -612,6 +613,8 @@
           const plusCenters = getPlusCenters(faces);
 
           const pluscUnsolved = getUnsolvedPlus(plusCenters);
+
+          ff += pluscUnsolved.flat().length;
 
           const plusCentersFlat = plusCenters.flat();
           const pBufferFace = options.plusCenterScheme.indexOf(options.plusCenterBuffer) / 4 | 0;
@@ -728,6 +731,8 @@
               if (cycleStartStickers.includes(piece)) break;
             }
           }
+
+          window.ff = ff;
 
           const reg = allCornerStickers(options.cornerBuffer).join('|');
           $('.corner-memo').innerText = chunk(cornerMemo.replace(new RegExp(reg, 'g'), ''), 2).join(' ');

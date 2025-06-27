@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>4x4 Blindfolded Helper</title>
+    <title>Letter Pair Sheet Helper</title>
     <style>
       * {
         box-sizing: border-box;
@@ -68,6 +68,7 @@
       <h1>Letter Pair Sheet Helper</h1>
       <p>Helper to convert letter pair sheet into a format for Anki.</p>
       <p>Input/output should be comma-separated CSV.</p>
+      <div><input type="checkbox" id="transpose"> Invert rows/columns</div>
       <br />
       <div>
         Input:<br />
@@ -84,13 +85,14 @@
 
         $('.csv').addEventListener('input', () => {
           const csv = $('.csv').value;
+          const invert = $('#transpose').checked;
           const lines = csv.split('\n').map(x => {
             return x.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(x => x.replace(/(^"|"$)/g, ''));
           });
           console.log(lines);
           const cols = lines.shift().slice(1);
           const rows = lines.map(x => x.shift());
-          const output = lines.flatMap((x, i) => x.flatMap((y, j) => y ? [[rows[i] + cols[j], y]] : []));
+          const output = lines.flatMap((x, i) => x.flatMap((y, j) => y ? [[transpose ? cols[j] + rows[i] : rows[i] + cols[j], y]] : []));
           const csvOutput = output.map(x => x.map(y => y.includes(',') ? `"${y}"` : y).join(',')).join('\n');
           $('.output').innerText = csvOutput;
         });

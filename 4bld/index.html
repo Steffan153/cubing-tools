@@ -453,8 +453,6 @@
             if (!flat.length) break;
             const cycleStart = [options.centerBuffer, ...options.centerCycles].find((x) => flat.includes(x));
 
-            console.log(cycleStart);
-
             const arr = unsolved[(options.centerScheme.indexOf(cycleStart) / 4) | 0];
             arr.splice(arr.indexOf(cycleStart), 1);
             arr.push(cycleStart);
@@ -669,6 +667,8 @@
           const allOrientations = orientations.map((ori) => {
             return [ori, 24 - getUnsolved(getCenters(getFaces(scramble + (' ' + ori).trim()))).flat().length];
           });
+
+          window.allo = allOrientations;
 
           allOrientations.sort((a, b) => b[1] - a[1]);
 
