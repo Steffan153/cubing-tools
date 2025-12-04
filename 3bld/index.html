@@ -9,7 +9,8 @@
         box-sizing: border-box;
       }
       body {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
+          "Helvetica Neue", sans-serif;
         margin: 0;
       }
 
@@ -169,72 +170,79 @@
 
         <p>Default settings are for M2/OP.</p>
         <p>
-          Swapping letters on the second letter of a pair is just for M2.<br />You can also swap them during execution instead of memorization (leave the settings
-          blank in that case)
+          Swapping letters on the second letter of a pair is just for M2.<br />You can also swap them during execution instead of
+          memorization (leave the settings blank in that case)
         </p>
 
         <h3>Edges</h3>
         <p>Lettering scheme: <input type="text" class="input edge-scheme" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
-        <p>Order to look for new cycles: <input type="text" class="input edge-cycles" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
+        <p>
+          Order to look for new cycles:
+          <input type="text" class="input edge-cycles" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" />
+        </p>
         <p>Buffer: <input type="text" class="input edge-buffer" value="U" /></p>
         <p>Letters to swap on the second letter of a pair: <input type="text" class="input edge-swaps" value="IS,CW" /></p>
 
         <h3>Corners</h3>
         <p>Lettering scheme: <input type="text" class="input corner-scheme" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
-        <p>Order to look for new cycles: <input type="text" class="input corner-cycles" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" /></p>
+        <p>
+          Order to look for new cycles:
+          <input type="text" class="input corner-cycles" value="ABCDEFGHIJKLMNOPQRSTUVWX" style="width: 300px" />
+        </p>
         <p>Buffer: <input type="text" class="input corner-buffer" value="E" /></p>
 
         <button class="btn">Close</button>
       </form>
     </dialog>
     <script src="visualcube.js"></script>
+    <script src="../scramble-gen/min2phase.js" async></script>
     <script>
       (() => {
         const $ = (x) => document.querySelector(x);
         const $$ = (x) => document.querySelectorAll(x);
 
-        const options = JSON.parse(localStorage.getItem('3bld-options') || 'null') || {
-          edgeScheme: 'ABCDEFGHIJKLMNOPQRSTUVWX',
-          edgeCycles: 'ABCDEFGHIJKLMNOPQRSTUVWX',
-          edgeBuffer: 'U',
-          edgeSwaps: 'IS,CW',
-          cornerScheme: 'ABCDEFGHIJKLMNOPQRSTUVWX',
-          cornerCycles: 'ABCDEFGHIJKLMNOPQRSTUVWX',
-          cornerBuffer: 'E',
+        const options = JSON.parse(localStorage.getItem("3bld-options") || "null") || {
+          edgeScheme: "ABCDEFGHIJKLMNOPQRSTUVWX",
+          edgeCycles: "ABCDEFGHIJKLMNOPQRSTUVWX",
+          edgeBuffer: "U",
+          edgeSwaps: "IS,CW",
+          cornerScheme: "ABCDEFGHIJKLMNOPQRSTUVWX",
+          cornerCycles: "ABCDEFGHIJKLMNOPQRSTUVWX",
+          cornerBuffer: "E",
         };
 
-        $('.edge-scheme').value = options.edgeScheme;
-        $('.edge-cycles').value = options.edgeCycles;
-        $('.edge-buffer').value = options.edgeBuffer;
-        $('.edge-swaps').value = options.edgeSwaps;
-        $('.corner-scheme').value = options.cornerScheme;
-        $('.corner-cycles').value = options.cornerCycles;
-        $('.corner-buffer').value = options.cornerBuffer;
+        $(".edge-scheme").value = options.edgeScheme;
+        $(".edge-cycles").value = options.edgeCycles;
+        $(".edge-buffer").value = options.edgeBuffer;
+        $(".edge-swaps").value = options.edgeSwaps;
+        $(".corner-scheme").value = options.cornerScheme;
+        $(".corner-cycles").value = options.cornerCycles;
+        $(".corner-buffer").value = options.cornerBuffer;
 
         const [W, R, G, Y, O, B] = [0, 1, 2, 3, 4, 5];
         const colors = [W, O, G, R, B, Y];
 
         const orientations = {
-          [[W, G]]: '',
-          [[W, O]]: 'y',
+          [[W, G]]: "",
+          [[W, O]]: "y",
           [[W, R]]: "y'",
-          [[W, B]]: 'y2',
-          [[R, G]]: 'z',
-          [[G, O]]: 'z y',
+          [[W, B]]: "y2",
+          [[R, G]]: "z",
+          [[G, O]]: "z y",
           [[B, R]]: "z y'",
-          [[O, B]]: 'z y2',
+          [[O, B]]: "z y2",
           [[O, G]]: "z'",
           [[B, O]]: "z' y",
           [[G, R]]: "z' y'",
           [[R, B]]: "z' y2",
-          [[Y, G]]: 'z2',
-          [[Y, O]]: 'z2 y',
+          [[Y, G]]: "z2",
+          [[Y, O]]: "z2 y",
           [[Y, R]]: "z2 y'",
-          [[Y, B]]: 'z2 y2',
-          [[B, W]]: 'x',
-          [[R, W]]: 'x y',
+          [[Y, B]]: "z2 y2",
+          [[B, W]]: "x",
+          [[R, W]]: "x y",
           [[O, W]]: "x y'",
-          [[G, W]]: 'x y2',
+          [[G, W]]: "x y2",
           [[G, Y]]: "x'",
           [[O, Y]]: "x' y",
           [[R, Y]]: "x' y'",
@@ -243,7 +251,7 @@
 
         const wingOpposites = [...`QMIEDLXRCPUFBTVJAHWNKOSG`].map((x) => x.charCodeAt() - 65);
 
-        const cornerOpposites = 'ER QN MJ IF RA DI LU XS FD CM PV UG JC BQ TW VK NB AE HX WO GL KP OT SH'.split` `.map((x) =>
+        const cornerOpposites = "ER QN MJ IF RA DI LU XS FD CM PV UG JC BQ TW VK NB AE HX WO GL KP OT SH".split` `.map((x) =>
           [...x].map((x) => x.charCodeAt() - 65)
         );
 
@@ -253,66 +261,59 @@
           const rand = (a, b) => Math.floor(Math.random() * (b - a + 1) + a);
           const pick = (a) => a[rand(0, a.length - 1)];
 
-          const axes = [
-            ['U', 'D'],
-            ['R', 'L'],
-            ['F', 'B'],
-          ];
-
-          const scram = [];
-
-          let doneMoves = 0;
-          let lastAxis = -1;
-
-          for (let moves = 25; moves--; ) {
-            let a, b;
-            do {
-              a = rand(0, axes.length - 1);
-              b = rand(0, axes[a].length - 1);
-              if (a !== lastAxis) {
-                doneMoves = 0;
-                lastAxis = a;
-              }
-            } while ((doneMoves >> b) & 1);
-            doneMoves |= 1 << b;
-
-            scram.push(axes[a][b] + pick(['', '2', "'"]));
-          }
-
-          return scram.join(' ') + pick(['', ' Rw', ' Rw2', " Rw'", ' Fw', " Fw'"]) + pick(['', ' Uw', ' Uw2', " Uw'"]);
+          return (
+            min2phase.solve(min2phase.randomCube()).replace(/ +/g, " ").trim() +
+            pick(["", " Rw", " Rw2", " Rw'", " Fw", " Fw'"]) +
+            pick(["", " Uw", " Uw2", " Uw'"])
+          );
         }
 
         function validateOptions() {
-          if (!(/^\p{L}{24}/ui.test(options.edgeScheme) && new Set(options.edgeScheme).size === 24)) {
-            alert('Invalid edge lettering scheme, please enter 24 unique uppercase letters.');
+          if (!(/^\p{L}{24}/iu.test(options.edgeScheme) && new Set(options.edgeScheme).size === 24)) {
+            alert("Invalid edge lettering scheme, please enter 24 unique uppercase letters.");
             return false;
           }
           if (![...options.edgeScheme].includes(options.edgeBuffer)) {
-            alert('Invalid edge buffer, please enter a letter in your edge lettering scheme.');
+            alert("Invalid edge buffer, please enter a letter in your edge lettering scheme.");
             return false;
           }
 
           const mbfs = allEdgeStickers(options.edgeBuffer);
-          if (!(/^\p{L}{22,24}/ui.test(options.edgeCycles) && [...options.edgeScheme].every((x) => mbfs.includes(x) || options.edgeCycles.includes(x)))) {
-            alert('Invalid order to look for new cycles (edges), please use the letters in your lettering scheme.');
+          if (
+            !(
+              /^\p{L}{22,24}/iu.test(options.edgeCycles) &&
+              [...options.edgeScheme].every((x) => mbfs.includes(x) || options.edgeCycles.includes(x))
+            )
+          ) {
+            alert("Invalid order to look for new cycles (edges), please use the letters in your lettering scheme.");
             return false;
           }
-          if (!(/^(\p{L}\p{L}(,\p{L}\p{L})*)?$/ui.test(options.edgeSwaps) && [...options.edgeSwaps].every((x) => [',', ...options.edgeScheme].includes(x)))) {
-            alert('Invalid list of letters to swap on the second letter of a pair (edges).');
+          if (
+            !(
+              /^(\p{L}\p{L}(,\p{L}\p{L})*)?$/iu.test(options.edgeSwaps) &&
+              [...options.edgeSwaps].every((x) => [",", ...options.edgeScheme].includes(x))
+            )
+          ) {
+            alert("Invalid list of letters to swap on the second letter of a pair (edges).");
             return false;
           }
 
-          if (!(/^\p{L}{24}/ui.test(options.cornerScheme) && new Set(options.cornerScheme).size === 24)) {
-            alert('Invalid corner lettering scheme, please enter 24 unique uppercase letters.');
+          if (!(/^\p{L}{24}/iu.test(options.cornerScheme) && new Set(options.cornerScheme).size === 24)) {
+            alert("Invalid corner lettering scheme, please enter 24 unique uppercase letters.");
             return false;
           }
           if (![...options.cornerScheme].includes(options.cornerBuffer)) {
-            alert('Invalid corner buffer, please enter a letter in your corner lettering scheme.');
+            alert("Invalid corner buffer, please enter a letter in your corner lettering scheme.");
             return false;
           }
           const bfs = allCornerStickers(options.cornerBuffer);
-          if (!(/^\p{L}{21,24}/ui.test(options.cornerCycles) && [...options.cornerScheme].every((x) => bfs.includes(x) || options.cornerCycles.includes(x)))) {
-            alert('Invalid order to look for new cycles (corners), please use the letters in your lettering scheme.');
+          if (
+            !(
+              /^\p{L}{21,24}/iu.test(options.cornerCycles) &&
+              [...options.cornerScheme].every((x) => bfs.includes(x) || options.cornerCycles.includes(x))
+            )
+          ) {
+            alert("Invalid order to look for new cycles (corners), please use the letters in your lettering scheme.");
             return false;
           }
           return true;
@@ -321,7 +322,7 @@
         function getFaces(scram) {
           const f = (s) => {
             const a = chunk(
-              window['sr-visualizer'].cube({
+              window["sr-visualizer"].cube({
                 cubeSize: 3,
                 colorScheme: [W, R, G, Y, O, B],
                 algorithm: s,
@@ -333,7 +334,7 @@
           let faces = f(scram);
           const k = orientations[[0, 2].map((x) => faces[x][4])];
           if (k) {
-            faces = f(scram + ' ' + k);
+            faces = f(scram + " " + k);
           }
           return faces;
         }
@@ -344,7 +345,9 @@
 
         function getCornerLocation([a, b, c]) {
           return cornerOpposites.findIndex(
-            (x, i) => ((i / 4) | 0) === colors.indexOf(a) && x.map((x) => (x / 4) | 0).sort() + '' === [b, c].map((x) => colors.indexOf(x)).sort() + ''
+            (x, i) =>
+              ((i / 4) | 0) === colors.indexOf(a) &&
+              x.map((x) => (x / 4) | 0).sort() + "" === [b, c].map((x) => colors.indexOf(x)).sort() + ""
           );
         }
 
@@ -375,13 +378,15 @@
         }
 
         function draw() {
-          const faces = getFaces($('.scramble').value);
+          const faces = getFaces($(".scramble").value);
 
           const [top, left, front, right, back, bottom] = faces.map((f) => {
-            return `<div class="face">${f.map((x) => `<div class="${`white red green yellow orange blue`.split(' ')[x]}"></div>`).join('')}</div>`;
+            return `<div class="face">${f
+              .map((x) => `<div class="${`white red green yellow orange blue`.split(" ")[x]}"></div>`)
+              .join("")}</div>`;
           });
           const empty = `<div></div>`;
-          document.querySelector('.cube').innerHTML = `
+          document.querySelector(".cube").innerHTML = `
             ${empty} ${top}    ${empty} ${empty}
             ${left}  ${front}  ${right} ${back}
             ${empty} ${bottom} ${empty} ${empty}
@@ -390,7 +395,7 @@
 
         function swaps(chunks, list) {
           const o = {};
-          list.split(',').forEach(([a, b]) => {
+          list.split(",").forEach(([a, b]) => {
             o[a] = b;
             o[b] = a;
           });
@@ -398,13 +403,13 @@
         }
 
         function generate() {
-          const scramble = $('.scramble').value;
+          const scramble = $(".scramble").value;
 
           const faces = getFaces(scramble);
 
           const edges = getEdges(faces);
 
-          let edgeMemo = '';
+          let edgeMemo = "";
           let unsolvedEdges = edges.flatMap((x, i) => (getWingLocation(x) === i ? [] : [options.edgeScheme[i]]));
 
           for (let k = 99; k--; ) {
@@ -429,12 +434,12 @@
             }
           }
 
-          const regM = allEdgeStickers(options.edgeBuffer).join('|');
-          $('.edge-memo').innerText = swaps(chunk(edgeMemo.replace(new RegExp(regM, 'g'), ''), 2), options.edgeSwaps).join(' ');
+          const regM = allEdgeStickers(options.edgeBuffer).join("|");
+          $(".edge-memo").innerText = swaps(chunk(edgeMemo.replace(new RegExp(regM, "g"), ""), 2), options.edgeSwaps).join(" ");
 
           const corners = getCorners(faces);
 
-          let cornerMemo = '';
+          let cornerMemo = "";
           let unsolvedCorners = corners.flatMap((x, i) => (getCornerLocation(x) === i ? [] : [options.cornerScheme[i]]));
 
           for (let k = 99; k--; ) {
@@ -459,16 +464,16 @@
             }
           }
 
-          const reg = allCornerStickers(options.cornerBuffer).join('|');
-          $('.corner-memo').innerText = chunk(cornerMemo.replace(new RegExp(reg, 'g'), ''), 2).join(' ');
+          const reg = allCornerStickers(options.cornerBuffer).join("|");
+          $(".corner-memo").innerText = chunk(cornerMemo.replace(new RegExp(reg, "g"), ""), 2).join(" ");
         }
 
         function checkEdge() {
-          const memo = $('.check-edge').value.toUpperCase().replace(/ |,/g, '');
-          $('.edge-feedback').innerText = '';
+          const memo = $(".check-edge").value.toUpperCase().replace(/ |,/g, "");
+          $(".edge-feedback").innerText = "";
 
           if ([...memo].some((x) => ![...options.edgeScheme].includes(x))) {
-            $('.edge-feedback').innerText = '❌ Invalid, please only use letters in your edge lettering scheme.';
+            $(".edge-feedback").innerText = "❌ Invalid, please only use letters in your edge lettering scheme.";
             return;
           }
 
@@ -477,11 +482,11 @@
           const kb = [...memo].find((x) => bufs.includes(x));
 
           if (kb) {
-            $('.edge-feedback').innerText = `❌ ${kb} is your buffer, so it shouldn't be used in your memorization.`;
+            $(".edge-feedback").innerText = `❌ ${kb} is your buffer, so it shouldn't be used in your memorization.`;
             return;
           }
 
-          const scramble = $('.scramble').value;
+          const scramble = $(".scramble").value;
 
           const faces = getFaces(scramble);
 
@@ -489,7 +494,7 @@
 
           const buf = options.edgeScheme.indexOf(options.edgeBuffer);
 
-          for (const c of swaps(chunk(memo, 2), options.edgeSwaps).join('')) {
+          for (const c of swaps(chunk(memo, 2), options.edgeSwaps).join("")) {
             const stickers = allEdgeStickers(c);
             bufs.forEach((b, i) => {
               const bufI = options.edgeScheme.indexOf(b);
@@ -501,18 +506,18 @@
           const u = edges.flatMap((x, i) => (getWingLocation(x) === i ? [] : [options.edgeScheme[i]]));
 
           if (!u.length) {
-            $('.edge-feedback').innerText = `✅ Looks good!`;
+            $(".edge-feedback").innerText = `✅ Looks good!`;
           } else {
-            $('.edge-feedback').innerText = `❌ Looks like there's an error. Unsolved edge stickers after executing: ${u.join(', ')}`;
+            $(".edge-feedback").innerText = `❌ Looks like there's an error. Unsolved edge stickers after executing: ${u.join(", ")}`;
           }
         }
 
         function checkCorner() {
-          const memo = $('.check-corner').value.toUpperCase().replace(/ |,/g, '');
-          $('.corner-feedback').innerText = '';
+          const memo = $(".check-corner").value.toUpperCase().replace(/ |,/g, "");
+          $(".corner-feedback").innerText = "";
 
           if ([...memo].some((x) => ![...options.cornerScheme].includes(x))) {
-            $('.corner-feedback').innerText = '❌ Invalid, please only use letters in your corner lettering scheme.';
+            $(".corner-feedback").innerText = "❌ Invalid, please only use letters in your corner lettering scheme.";
             return;
           }
 
@@ -521,11 +526,11 @@
           const kb = [...memo].find((x) => bufs.includes(x));
 
           if (kb) {
-            $('.corner-feedback').innerText = `❌ ${kb} is your buffer, so it shouldn't be used in your memorization.`;
+            $(".corner-feedback").innerText = `❌ ${kb} is your buffer, so it shouldn't be used in your memorization.`;
             return;
           }
 
-          const scramble = $('.scramble').value;
+          const scramble = $(".scramble").value;
 
           const faces = getFaces(scramble);
 
@@ -545,77 +550,77 @@
           const u = corners.flatMap((x, i) => (getCornerLocation(x) === i ? [] : [options.cornerScheme[i]]));
 
           if (!u.length) {
-            $('.corner-feedback').innerText = `✅ Looks good!`;
+            $(".corner-feedback").innerText = `✅ Looks good!`;
           } else {
-            $('.corner-feedback').innerText = `❌ Looks like there's an error. Unsolved corner stickers after executing: ${u.join(', ')}`;
+            $(".corner-feedback").innerText = `❌ Looks like there's an error. Unsolved corner stickers after executing: ${u.join(", ")}`;
           }
         }
 
-        $('.btn-check-edge').addEventListener('click', checkEdge);
-        $('.btn-check-corner').addEventListener('click', checkCorner);
+        $(".btn-check-edge").addEventListener("click", checkEdge);
+        $(".btn-check-corner").addEventListener("click", checkCorner);
 
-        $('.generate-memo').addEventListener('click', () => {
+        $(".generate-memo").addEventListener("click", () => {
           if (!validateOptions()) return;
 
-          $('.generated').style.display = 'block';
-          $('.check').style.display = 'none';
+          $(".generated").style.display = "block";
+          $(".check").style.display = "none";
 
           generate();
         });
 
-        $('.check-memo').addEventListener('click', () => {
+        $(".check-memo").addEventListener("click", () => {
           if (!validateOptions()) return;
-          $('.generated').style.display = 'none';
-          $('.check').style.display = 'block';
+          $(".generated").style.display = "none";
+          $(".check").style.display = "block";
           generate();
         });
 
-        $('.draw-scramble').addEventListener('click', () => {
+        $(".draw-scramble").addEventListener("click", () => {
           draw();
-          $('#draw-dialog').showModal();
+          $("#draw-dialog").showModal();
         });
 
-        $('.settings').addEventListener('click', () => {
-          $('#settings-dialog').showModal();
+        $(".settings").addEventListener("click", () => {
+          $("#settings-dialog").showModal();
         });
 
-        $('.edge-scheme').addEventListener('input', () => {
-          options.edgeScheme = $('.edge-scheme').value;
-          localStorage.setItem('3bld-options', JSON.stringify(options));
+        $(".edge-scheme").addEventListener("input", () => {
+          options.edgeScheme = $(".edge-scheme").value;
+          localStorage.setItem("3bld-options", JSON.stringify(options));
         });
 
-        $('.edge-buffer').addEventListener('input', () => {
-          options.edgeBuffer = $('.edge-buffer').value;
-          localStorage.setItem('3bld-options', JSON.stringify(options));
+        $(".edge-buffer").addEventListener("input", () => {
+          options.edgeBuffer = $(".edge-buffer").value;
+          localStorage.setItem("3bld-options", JSON.stringify(options));
         });
 
-        $('.edge-cycles').addEventListener('input', () => {
-          options.edgeCycles = $('.edge-cycles').value;
-          localStorage.setItem('3bld-options', JSON.stringify(options));
+        $(".edge-cycles").addEventListener("input", () => {
+          options.edgeCycles = $(".edge-cycles").value;
+          localStorage.setItem("3bld-options", JSON.stringify(options));
         });
 
-        $('.edge-swaps').addEventListener('input', () => {
-          options.edgeSwaps = $('.edge-swaps').value;
-          localStorage.setItem('3bld-options', JSON.stringify(options));
+        $(".edge-swaps").addEventListener("input", () => {
+          options.edgeSwaps = $(".edge-swaps").value;
+          localStorage.setItem("3bld-options", JSON.stringify(options));
         });
 
-        $('.corner-scheme').addEventListener('input', () => {
-          options.cornerScheme = $('.corner-scheme').value;
-          localStorage.setItem('3bld-options', JSON.stringify(options));
+        $(".corner-scheme").addEventListener("input", () => {
+          options.cornerScheme = $(".corner-scheme").value;
+          localStorage.setItem("3bld-options", JSON.stringify(options));
         });
 
-        $('.corner-buffer').addEventListener('input', () => {
-          options.cornerBuffer = $('.corner-buffer').value;
-          localStorage.setItem('3bld-options', JSON.stringify(options));
+        $(".corner-buffer").addEventListener("input", () => {
+          options.cornerBuffer = $(".corner-buffer").value;
+          localStorage.setItem("3bld-options", JSON.stringify(options));
         });
 
-        $('.corner-cycles').addEventListener('input', () => {
-          options.cornerCycles = $('.corner-cycles').value;
-          localStorage.setItem('3bld-options', JSON.stringify(options));
+        $(".corner-cycles").addEventListener("input", () => {
+          options.cornerCycles = $(".corner-cycles").value;
+          localStorage.setItem("3bld-options", JSON.stringify(options));
         });
 
-        $('.generate-scramble').addEventListener('click', () => {
-          $('.scramble').value = makeScramble();
+        $(".generate-scramble").addEventListener("click", () => {
+          $(".scramble").value = makeScramble();
         });
       })();
     </script>
